@@ -1,0 +1,11 @@
+{
+  "double_jump": {
+    "subtitle": "subtitles.entity.vitality.double_jump",
+    "sounds": [
+      {
+        "name": "vitality:double_jump",
+        "stream": false
+      }
+    ]
+  }
+}

@@ -5,6 +5,7 @@ import dev.mariany.vitality.event.server.ServerTickHandler;
 import dev.mariany.vitality.gamerule.VitalityGamerules;
 import dev.mariany.vitality.packet.Packets;
 import dev.mariany.vitality.packet.serverbound.ServerBoundPackets;
+import dev.mariany.vitality.sound.VitalitySoundEvents;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ public class Vitality implements ModInitializer {
         ModAttachmentTypes.registerAttachmentTypes();
         VitalityGamerules.registerModGamerules();
         ServerTickHandler.register();
+        VitalitySoundEvents.registerModSoundEvents();
     }
 
     public static Identifier id(String resource) {

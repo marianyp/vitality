@@ -1,12 +1,12 @@
 package dev.mariany.vitality.logic;
 
+import dev.mariany.vitality.sound.VitalitySoundEvents;
 import dev.mariany.vitality.util.VitalityUtils;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.HungerManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.stat.Stats;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -92,7 +92,7 @@ public class DoubleJumpLogic {
                 hungerManager.addExhaustion(0.15F);
             }
 
-            world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_WOOL_FALL, SoundCategory.PLAYERS, 1F,
+            world.playSound(null, player.getBlockPos(), VitalitySoundEvents.DOUBLE_JUMP, SoundCategory.PLAYERS, 0.215F,
                     0.9F + player.getRandom().nextFloat() * 0.2F);
         }
 
