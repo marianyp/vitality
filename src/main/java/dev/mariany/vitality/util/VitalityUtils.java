@@ -39,7 +39,7 @@ public class VitalityUtils {
         }
 
         if (foodHistorySize < maxDietRating) {
-            return maxDietRating - foodHistorySize;
+            return 2;
         }
 
         return 0;
@@ -60,5 +60,14 @@ public class VitalityUtils {
         player.setAttached(ModAttachmentTypes.FOOD_HISTORY,
                 foodHistory.stream().map(Item::getRegistryEntry).map(reference -> (RegistryEntry<Item>) reference)
                         .toList());
+    }
+
+    public static boolean hasMovementBuffs(PlayerEntity player) {
+        float ratio = (float) getDietRating(player) / getMaxDietRating(player);
+        return ratio >= VitalityConstants.MIN_BUFF_RATIO;
+    }
+
+    public static boolean canDoubleJump(PlayerEntity player) {
+        return hasMovementBuffs(player) && player.getWorld().getGameRules().get(VitalityGamerules.ALLOW_DOUBLE_JUMP).get();
     }
 }

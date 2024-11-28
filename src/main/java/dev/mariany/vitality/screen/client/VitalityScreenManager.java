@@ -2,9 +2,12 @@ package dev.mariany.vitality.screen.client;
 
 import dev.mariany.vitality.Vitality;
 import dev.mariany.vitality.screen.VitalityPlayerScreenHandler;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.Identifier;
 
+@Environment(EnvType.CLIENT)
 public class VitalityScreenManager {
     private static final Identifier DIET = Vitality.id("diet");
     private static final Identifier DIET_EMPTY = Vitality.id("diet_empty");

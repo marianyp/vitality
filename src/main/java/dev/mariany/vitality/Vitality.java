@@ -2,8 +2,9 @@ package dev.mariany.vitality;
 
 import dev.mariany.vitality.event.server.ServerTickHandler;
 import dev.mariany.vitality.gamerule.VitalityGamerules;
+import dev.mariany.vitality.packet.Packets;
+import dev.mariany.vitality.packet.serverbound.ServerBoundPackets;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,8 +15,11 @@ public class Vitality implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        Packets.register();
+        ServerBoundPackets.init();
+
         VitalityGamerules.registerModGamerules();
-        ServerTickEvents.END_SERVER_TICK.register(ServerTickHandler::onServerTick);
+        ServerTickHandler.register();
     }
 
     public static Identifier id(String resource) {
