@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class WallJumpLogic {
@@ -39,7 +40,8 @@ public class WallJumpLogic {
     }
 
     public static void handleWallJumpInput(PlayerEntity player, float forward, float left, boolean sneaking,
-                                           Consumer<PlayerEntity> onWallJump, Consumer<PlayerEntity> onCling) {
+                                           Consumer<PlayerEntity> onWallJump,
+                                           BiConsumer<PlayerEntity, Integer> onCling) {
         World world = player.getWorld();
         BlockPos blockPos = player.getBlockPos();
 
@@ -59,21 +61,14 @@ public class WallJumpLogic {
         }
     }
 
-    public static void attemptWallJump(PlayerEntity player, float forward, float left, boolean sneaking,
-                                       Consumer<PlayerEntity> onWallJump, Consumer<PlayerEntity> onCling) {
-        World world = player.getWorld();
-        BlockPos blockPos = player.getBlockPos();
-
-        boolean onGround = player.isOnGround();
-        FluidState fluidState = world.getFluidState(blockPos);
-        int foodLevel = player.getHungerManager().getFoodLevel();
-
+    private static void attemptWallJump(PlayerEntity player, float forward, float left, boolean sneaking,
+                                       Consumer<PlayerEntity> onWallJump, BiConsumer<PlayerEntity, Integer> onCling) {
         updateWalls(player);
         ticksKeyDown = sneaking ? ticksKeyDown + 1 : 0;
         BlockPos wallPos = getWallPos(player);
 
         if (ticksWallClinged < 1) {
-            if (ticksKeyDown > 0 && ticksKeyDown < 4 && !walls.isEmpty() && canWallCling(player)) {
+            if (ticksKeyDown > 0 && ticksKeyDown < 4 && !walls.isEmpty() && canClingConsideringWalls(player)) {
                 ticksWallClinged = 1;
                 clingX = player.getX();
                 clingZ = player.getZ();
@@ -86,10 +81,13 @@ public class WallJumpLogic {
             return;
         }
 
-        if (!sneaking || onGround || !fluidState.isEmpty() || walls.isEmpty() || foodLevel < 1) {
-            ticksWallClinged = 0;
+        if (!canCling(player, sneaking)) {
+            if (ticksWallClinged != 0) {
+                onCling.accept(player, 0);
+                ticksWallClinged = 0;
+            }
 
-            if ((forward != 0 || left != 0) && !onGround && !walls.isEmpty()) {
+            if ((forward != 0 || left != 0) && !player.isOnGround() && !walls.isEmpty()) {
                 onWallJump.accept(player);
                 wallJump(player, forward, left, VitalityConstants.WALL_JUMP_HEIGHT);
 
@@ -117,14 +115,25 @@ public class WallJumpLogic {
             motionY = 0;
         }
 
-        onCling.accept(player);
+        onCling.accept(player, ticksWallClinged);
 
         player.setVelocity(0, motionY, 0);
         player.velocityDirty = true;
     }
 
-    private static boolean canWallCling(PlayerEntity player) {
-        if (player.isClimbing() || player.getVelocity().y > 0.1 || player.getHungerManager().getFoodLevel() < 1) {
+    public static boolean canCling(PlayerEntity player) {
+        return canCling(player, player.isSneaking());
+    }
+
+    private static boolean canCling(PlayerEntity player, boolean sneaking) {
+        World world = player.getWorld();
+        BlockPos blockPos = player.getBlockPos();
+        FluidState fluidState = world.getFluidState(blockPos);
+        return sneaking && !player.isOnGround() && fluidState.isEmpty();
+    }
+
+    private static boolean canClingConsideringWalls(PlayerEntity player) {
+        if (player.isClimbing() || player.getVelocity().y > 0.1) {
             return false;
         }
 

@@ -1,6 +1,7 @@
 package dev.mariany.vitality.event.client;
 
 import dev.mariany.vitality.client.animation.AnimatablePlayer;
+import dev.mariany.vitality.client.model.Clingable;
 import dev.mariany.vitality.logic.DoubleJumpLogic;
 import dev.mariany.vitality.logic.WallJumpLogic;
 import dev.mariany.vitality.packet.serverbound.ClingPacket;
@@ -15,6 +16,7 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Vec3d;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
@@ -37,9 +39,14 @@ public class ClientTickHandler {
             ClientPlayNetworking.send(new WallJumpPacket());
         };
 
-        Consumer<PlayerEntity> onCling = player -> {
-            player.fallDistance = 0;
-            ClientPlayNetworking.send(new ClingPacket());
+        BiConsumer<PlayerEntity, Integer> onCling = (player, ticks) -> {
+            if (ticks > 0) {
+                player.fallDistance = 0;
+            }
+            ClientPlayNetworking.send(new ClingPacket(ticks));
+            if (player instanceof Clingable clingable) {
+                clingable.vitality$updateWallClingedTicks(ticks);
+            }
         };
 
         WallJumpLogic.handleWallJumpInput(clientPlayer, clientPlayer.input.movementForward,

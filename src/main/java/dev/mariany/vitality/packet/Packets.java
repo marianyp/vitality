@@ -1,9 +1,6 @@
 package dev.mariany.vitality.packet;
 
-import dev.mariany.vitality.packet.clientbound.BooleanGameruleUpdatePacket;
-import dev.mariany.vitality.packet.clientbound.DoubleJumpedPacket;
-import dev.mariany.vitality.packet.clientbound.FoodHistorySyncPacket;
-import dev.mariany.vitality.packet.clientbound.IntGameruleUpdatePacket;
+import dev.mariany.vitality.packet.clientbound.*;
 import dev.mariany.vitality.packet.serverbound.*;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.network.RegistryByteBuf;
@@ -17,6 +14,7 @@ public class Packets {
     private static void clientbound(PayloadTypeRegistry<RegistryByteBuf> registry) {
         registry.register(FoodHistorySyncPacket.ID, FoodHistorySyncPacket.CODEC);
         registry.register(DoubleJumpedPacket.ID, DoubleJumpedPacket.CODEC);
+        registry.register(ClingedPacket.ID, ClingedPacket.CODEC);
         registry.register(BooleanGameruleUpdatePacket.ID, BooleanGameruleUpdatePacket.CODEC);
         registry.register(IntGameruleUpdatePacket.ID, IntGameruleUpdatePacket.CODEC);
     }
