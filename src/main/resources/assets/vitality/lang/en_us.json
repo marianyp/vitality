@@ -1,0 +1,7 @@
+{
+  "gui.inventory.vitality.diet": "Diet: %s",
+  "gui.inventory.vitality.diet.good": "Good",
+  "gui.inventory.vitality.diet.fair": "Fair",
+  "gui.inventory.vitality.diet.dangerous": "Dangerous",
+  "gui.inventory.vitality.diet.bad": "Bad"
+}

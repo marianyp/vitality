@@ -2,9 +2,12 @@ package dev.mariany.vitality.screen.client;
 
 import dev.mariany.vitality.Vitality;
 import dev.mariany.vitality.screen.VitalityPlayerScreenHandler;
+import dev.mariany.vitality.util.VitalityConstants;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
@@ -27,8 +30,30 @@ public class VitalityScreenManager {
         currentScreen = screen;
     }
 
-    public static void update(int mouseX, int mouseY) {
+    public static void update(TextRenderer textRenderer, DrawContext context, int mouseX, int mouseY) {
+        VitalityPlayerScreenHandler handler = currentScreen.vitality$getHandler();
 
+        int maxScore = handler.vitality$getMaxScore();
+        int score = handler.vitality$getScore();
+
+        Text tooltipText = Text.translatable("gui.inventory.vitality.diet.bad");
+
+        if (score > 0) {
+            if (score == 1) {
+                tooltipText = Text.translatable("gui.inventory.vitality.diet.dangerous");
+            } else {
+                float ratio = (float) score / maxScore;
+                if (ratio >= VitalityConstants.MIN_BUFF_RATIO) {
+                    tooltipText = Text.translatable("gui.inventory.vitality.diet.good");
+                } else {
+                    tooltipText = Text.translatable("gui.inventory.vitality.diet.fair");
+                }
+            }
+        }
+
+        if (isHovered(mouseX, mouseY)) {
+            context.drawTooltip(textRenderer, Text.translatable("gui.inventory.vitality.diet", tooltipText), mouseX, mouseY);
+        }
     }
 
     public static void drawDiet(DrawContext context) {
@@ -62,5 +87,18 @@ public class VitalityScreenManager {
                     x + xOffset, (y + yOffset + 1) + (FILLED_SPRITE_HEIGHT - revealedHeight), SPRITE_WIDTH,
                     revealedHeight);
         }
+    }
+
+    private static boolean isHovered(int mouseX, int mouseY) {
+        int x = currentScreen.vitality$getX();
+        int y = currentScreen.vitality$getY();
+
+        int left = TOP_LEFT[0] + x;
+        int top = TOP_LEFT[1] + y;
+
+        int right = left + SPRITE_WIDTH;
+        int bottom = top + SPRITE_HEIGHT;
+
+        return (mouseX >= left && mouseX <= right && mouseY >= top && mouseY <= bottom);
     }
 }

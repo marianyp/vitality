@@ -27,7 +27,7 @@ public abstract class InventoryScreenMixin extends AbstractInventoryScreen<Playe
 
     @Inject(at = @At("HEAD"), method = "render")
     private void render(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo info) {
-        VitalityScreenManager.update(mouseX, mouseY);
+        VitalityScreenManager.update(textRenderer, context, mouseX, mouseY);
     }
 
     @Inject(at = @At("RETURN"), method = "drawBackground")
