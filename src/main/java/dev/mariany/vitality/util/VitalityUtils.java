@@ -4,6 +4,8 @@ import dev.mariany.vitality.attachment.ModAttachmentTypes;
 import dev.mariany.vitality.gamerule.VitalityGamerules;
 import dev.mariany.vitality.tag.VitalityTags;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -57,6 +59,8 @@ public class VitalityUtils {
     }
 
     public static void addToFoodHistory(PlayerEntity player, ItemStack stack) {
+        boolean hasMovementBuffs = hasMovementBuffs(player);
+
         List<Item> foodHistory = VitalityUtils.getFoodHistory(player);
         foodHistory.addFirst(stack.getItem());
 
@@ -67,6 +71,13 @@ public class VitalityUtils {
         player.setAttached(ModAttachmentTypes.FOOD_HISTORY,
                 foodHistory.stream().map(Item::getRegistryEntry).map(reference -> (RegistryEntry<Item>) reference)
                         .toList());
+
+        if (!player.getWorld().isClient) {
+            if (!hasMovementBuffs && hasMovementBuffs(player)) {
+                player.addStatusEffect(
+                        new StatusEffectInstance(StatusEffects.REGENERATION, 20 * 5, 0, false, true, true));
+            }
+        }
     }
 
     public static boolean hasMovementBuffs(PlayerEntity player) {
