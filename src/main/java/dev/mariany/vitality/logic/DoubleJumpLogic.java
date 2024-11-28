@@ -16,13 +16,29 @@ import org.jetbrains.annotations.Nullable;
 public class DoubleJumpLogic {
     private static final float JUMP_MULTIPLIER = 0.25F;
     private static final float SPRINT_MULTIPLIER = 0.25F;
+    private static final int MIDAIR_DELAY = 3;
 
     private static boolean canDoubleJump;
     private static boolean hasReleasedJumpKey;
+    private static Integer midAirCooldown = null;
+
+    private static boolean isOnGround(PlayerEntity player) {
+        if (midAirCooldown == null) {
+            return player.isOnGround();
+        }
+        return midAirCooldown != 0;
+    }
 
     @Nullable
     public static Vec3d handleDoubleJumpInput(PlayerEntity player, boolean jumping) {
-        if (!player.isSubmergedInWater() && !player.isClimbing() && player.isOnGround()) {
+        if (player.isOnGround()) {
+            midAirCooldown = MIDAIR_DELAY;
+        } else {
+            int threshold = midAirCooldown == null ? 0 : midAirCooldown;
+            midAirCooldown = Math.max(0, threshold - 1);
+        }
+
+        if (!player.isSubmergedInWater() && !player.isClimbing() && isOnGround(player)) {
             hasReleasedJumpKey = false;
             canDoubleJump = true;
         } else if (!jumping) {
