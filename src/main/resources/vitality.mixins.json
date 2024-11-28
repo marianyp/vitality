@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "dev.mariany.vitality.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "PlayerEntityMixin",
+    "PlayerScreenHandlerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": [
+    "InventoryScreenMixin"
+  ]
+}
