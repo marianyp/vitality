@@ -1,5 +1,6 @@
 package dev.mariany.vitality.packet;
 
+import dev.mariany.vitality.packet.clientbound.DoubleJumpedPacket;
 import dev.mariany.vitality.packet.clientbound.FoodHistorySyncPacket;
 import dev.mariany.vitality.packet.serverbound.ClingPacket;
 import dev.mariany.vitality.packet.serverbound.DoubleJumpPacket;
@@ -16,6 +17,7 @@ public class Packets {
 
     private static void clientbound(PayloadTypeRegistry<RegistryByteBuf> registry) {
         registry.register(FoodHistorySyncPacket.ID, FoodHistorySyncPacket.CODEC);
+        registry.register(DoubleJumpedPacket.ID, DoubleJumpedPacket.CODEC);
     }
 
     private static void serverbound(PayloadTypeRegistry<RegistryByteBuf> registry) {

@@ -1,4 +1,4 @@
-package dev.mariany.vitality;
+package dev.mariany.vitality.client;
 
 import dev.mariany.vitality.event.client.ClientTickHandler;
 import dev.mariany.vitality.packet.clientbound.ClientBoundPackets;

@@ -11,6 +11,7 @@ import net.minecraft.stat.Stats;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 public class DoubleJumpLogic {
     private static final float JUMP_MULTIPLIER = 0.25F;
@@ -19,7 +20,8 @@ public class DoubleJumpLogic {
     private static boolean canDoubleJump;
     private static boolean hasReleasedJumpKey;
 
-    public static boolean handleDoubleJumpInput(PlayerEntity player, boolean jumping) {
+    @Nullable
+    public static Vec3d handleDoubleJumpInput(PlayerEntity player, boolean jumping) {
         if (!player.isSubmergedInWater() && !player.isClimbing() && player.isOnGround()) {
             hasReleasedJumpKey = false;
             canDoubleJump = true;
@@ -28,14 +30,15 @@ public class DoubleJumpLogic {
         } else if (!player.getAbilities().flying && canDoubleJump && hasReleasedJumpKey && !player.isSubmergedInWater() && !player.isClimbing()) {
             canDoubleJump = false;
             if (VitalityUtils.canDoubleJump(player)) {
-                doubleJump(player);
-                return true;
+                return doubleJump(player);
             }
         }
-        return false;
+        return null;
     }
 
-    public static void doubleJump(PlayerEntity player) {
+    public static Vec3d doubleJump(PlayerEntity player) {
+        World world = player.getWorld();
+
         player.fallDistance = 0;
         player.setIgnoreFallDamageFromCurrentExplosion(true);
         player.currentExplosionImpactPos = player.getPos();
@@ -59,23 +62,24 @@ public class DoubleJumpLogic {
         double forwardX = -MathHelper.sin(yaw) * SPRINT_MULTIPLIER;
         double forwardZ = MathHelper.cos(yaw) * SPRINT_MULTIPLIER;
 
-        player.addVelocity(forwardX, upwardsMotion - motion.y, forwardZ);
-
-        player.incrementStat(Stats.JUMP);
-
-        HungerManager hungerManager = player.getHungerManager();
-
-        if (player.isSprinting()) {
-            hungerManager.addExhaustion(0.4F);
-        } else {
-            hungerManager.addExhaustion(0.15F);
-        }
-
-        World world = player.getWorld();
+        Vec3d forwardMotion = new Vec3d(forwardX, upwardsMotion - motion.y, forwardZ);
+        player.addVelocity(forwardMotion);
 
         if (!world.isClient) {
+            player.incrementStat(Stats.JUMP);
+
+            HungerManager hungerManager = player.getHungerManager();
+
+            if (player.isSprinting()) {
+                hungerManager.addExhaustion(0.4F);
+            } else {
+                hungerManager.addExhaustion(0.15F);
+            }
+
             world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_WOOL_FALL, SoundCategory.PLAYERS, 1F,
                     0.9F + player.getRandom().nextFloat() * 0.2F);
         }
+
+        return forwardMotion;
     }
 }

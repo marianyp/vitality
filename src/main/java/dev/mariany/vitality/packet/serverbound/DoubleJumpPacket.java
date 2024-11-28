@@ -2,6 +2,7 @@ package dev.mariany.vitality.packet.serverbound;
 
 import dev.mariany.vitality.Vitality;
 import dev.mariany.vitality.logic.DoubleJumpLogic;
+import dev.mariany.vitality.packet.clientbound.DoubleJumpedPacket;
 import dev.mariany.vitality.util.VitalityUtils;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryByteBuf;
@@ -11,6 +12,7 @@ import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.Vec3d;
 
 public record DoubleJumpPacket() implements CustomPayload {
     public static final CustomPayload.Id<DoubleJumpPacket> ID = new CustomPayload.Id<>(Vitality.id("double_jump"));
@@ -26,7 +28,7 @@ public record DoubleJumpPacket() implements CustomPayload {
         ServerWorld world = player.getServerWorld();
 
         if (VitalityUtils.canDoubleJump(player)) {
-            DoubleJumpLogic.doubleJump(player);
+            Vec3d movement = DoubleJumpLogic.doubleJump(player);
 
             for (int i = 0; i < 8; ++i) {
                 double motionX = player.getRandom().nextGaussian() * 0.02;
@@ -36,6 +38,13 @@ public record DoubleJumpPacket() implements CustomPayload {
                 ParticleEffect particleType = player.isSubmergedInWater() ? ParticleTypes.BUBBLE : ParticleTypes.POOF;
                 world.spawnParticles(particleType, player.getX(), player.getY(), player.getZ(), 1, motionX, motionY,
                         motionZ, 0.15);
+            }
+
+            for (ServerPlayerEntity otherPlayer : world.getPlayers()) {
+                if (!otherPlayer.equals(player)) {
+                    ServerPlayNetworking.send(otherPlayer,
+                            new DoubleJumpedPacket(player.getId(), movement.x, movement.y, movement.z));
+                }
             }
         }
     }

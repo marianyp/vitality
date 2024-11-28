@@ -1,5 +1,6 @@
 package dev.mariany.vitality.event.client;
 
+import dev.mariany.vitality.client.animation.AnimatablePlayer;
 import dev.mariany.vitality.logic.DoubleJumpLogic;
 import dev.mariany.vitality.logic.WallJumpLogic;
 import dev.mariany.vitality.packet.serverbound.ClingPacket;
@@ -12,6 +13,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.function.Consumer;
 
@@ -45,9 +47,15 @@ public class ClientTickHandler {
     }
 
     private static void handleDoubleJump(ClientPlayerEntity player) {
-        if (DoubleJumpLogic.handleDoubleJumpInput(player, player.input.jumping)) {
+        Vec3d direction = DoubleJumpLogic.handleDoubleJumpInput(player, player.input.jumping);
+        if (direction != null) {
             ClientPlayNetworking.send(new DoubleJumpPacket());
             WallJumpLogic.resetCling();
+            playVisuals(player, direction);
         }
+    }
+
+    private static void playVisuals(ClientPlayerEntity player, Vec3d direction) {
+        ((AnimatablePlayer) player).vitality$playRollAnimation(direction);
     }
 }

@@ -8,6 +8,9 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.Difficulty;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -31,6 +34,10 @@ public class VitalityUtils {
         List<Item> foodHistory = VitalityUtils.getFoodHistory(entity);
         int foodHistorySize = foodHistory.size();
         int maxDietRating = getMaxDietRating(entity);
+
+        if (entity.getWorld().getDifficulty().equals(Difficulty.PEACEFUL)) {
+            return maxDietRating;
+        }
 
         for (int i = 0; i < foodHistorySize; i++) {
             if (isHealthy(foodHistory.get(i))) {
@@ -75,5 +82,16 @@ public class VitalityUtils {
     public static boolean canDoubleJump(PlayerEntity player) {
         return hasMovementBuffs(player) && player.getWorld().getGameRules().get(VitalityGamerules.ALLOW_DOUBLE_JUMP)
                 .get();
+    }
+
+    public static Vec3d slerp(Vec3d a, Vec3d b, float t) {
+        a = a.normalize();
+        b = b.normalize();
+
+        double dot = MathHelper.clamp(a.dotProduct(b), -1.0, 1.0);
+        double theta = Math.acos(dot) * t;
+
+        Vec3d relativeVec = b.subtract(a.multiply(dot)).normalize();
+        return a.multiply(Math.cos(theta)).add(relativeVec.multiply(Math.sin(theta)));
     }
 }

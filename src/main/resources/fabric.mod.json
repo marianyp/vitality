@@ -19,7 +19,7 @@
       "dev.mariany.vitality.Vitality"
     ],
     "client": [
-      "dev.mariany.vitality.VitalityClient"
+      "dev.mariany.vitality.client.VitalityClient"
     ],
     "fabric-datagen": [
       "dev.mariany.vitality.VitalityDataGenerator"
