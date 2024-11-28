@@ -14,4 +14,8 @@ public class ModAttachmentTypes {
     public static final AttachmentType<List<RegistryEntry<Item>>> FOOD_HISTORY = AttachmentRegistry.<List<RegistryEntry<Item>>>builder()
             .persistent(ItemStack.ITEM_CODEC.listOf()).initializer(LinkedList::new)
             .buildAndRegister(Vitality.id("food_history"));
+
+    public static void registerAttachmentTypes() {
+        Vitality.LOGGER.info("Registering Attachment Types for " + Vitality.MOD_ID);
+    }
 }

@@ -67,7 +67,13 @@ public class VitalityUtils {
         return ratio >= VitalityConstants.MIN_BUFF_RATIO;
     }
 
+    public static boolean canWallJump(PlayerEntity player) {
+        return hasMovementBuffs(player) && player.getWorld().getGameRules().get(VitalityGamerules.ALLOW_WALL_JUMP)
+                .get();
+    }
+
     public static boolean canDoubleJump(PlayerEntity player) {
-        return hasMovementBuffs(player) && player.getWorld().getGameRules().get(VitalityGamerules.ALLOW_DOUBLE_JUMP).get();
+        return hasMovementBuffs(player) && player.getWorld().getGameRules().get(VitalityGamerules.ALLOW_DOUBLE_JUMP)
+                .get();
     }
 }

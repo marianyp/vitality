@@ -1,5 +1,6 @@
-package dev.mariany.vitality.buff;
+package dev.mariany.vitality.logic;
 
+import dev.mariany.vitality.util.VitalityUtils;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.HungerManager;
@@ -11,9 +12,28 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-public class BuffHandlers {
+public class DoubleJumpLogic {
     private static final float JUMP_MULTIPLIER = 0.25F;
     private static final float SPRINT_MULTIPLIER = 0.25F;
+
+    private static boolean canDoubleJump;
+    private static boolean hasReleasedJumpKey;
+
+    public static boolean handleDoubleJumpInput(PlayerEntity player, boolean jumping) {
+        if (!player.isSubmergedInWater() && !player.isClimbing() && player.isOnGround()) {
+            hasReleasedJumpKey = false;
+            canDoubleJump = true;
+        } else if (!jumping) {
+            hasReleasedJumpKey = true;
+        } else if (!player.getAbilities().flying && canDoubleJump && hasReleasedJumpKey && !player.isSubmergedInWater() && !player.isClimbing()) {
+            canDoubleJump = false;
+            if (VitalityUtils.canDoubleJump(player)) {
+                doubleJump(player);
+                return true;
+            }
+        }
+        return false;
+    }
 
     public static void doubleJump(PlayerEntity player) {
         player.fallDistance = 0;
@@ -46,9 +66,9 @@ public class BuffHandlers {
         HungerManager hungerManager = player.getHungerManager();
 
         if (player.isSprinting()) {
-            hungerManager.addExhaustion(0.2F);
+            hungerManager.addExhaustion(0.4F);
         } else {
-            hungerManager.addExhaustion(0.05F);
+            hungerManager.addExhaustion(0.15F);
         }
 
         World world = player.getWorld();

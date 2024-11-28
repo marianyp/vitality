@@ -1,7 +1,7 @@
 package dev.mariany.vitality.packet.serverbound;
 
 import dev.mariany.vitality.Vitality;
-import dev.mariany.vitality.buff.BuffHandlers;
+import dev.mariany.vitality.logic.DoubleJumpLogic;
 import dev.mariany.vitality.util.VitalityUtils;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryByteBuf;
@@ -26,7 +26,7 @@ public record DoubleJumpPacket() implements CustomPayload {
         ServerWorld world = player.getServerWorld();
 
         if (VitalityUtils.canDoubleJump(player)) {
-            BuffHandlers.doubleJump(player);
+            DoubleJumpLogic.doubleJump(player);
 
             for (int i = 0; i < 8; ++i) {
                 double motionX = player.getRandom().nextGaussian() * 0.02;

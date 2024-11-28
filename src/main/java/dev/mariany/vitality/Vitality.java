@@ -1,5 +1,6 @@
 package dev.mariany.vitality;
 
+import dev.mariany.vitality.attachment.ModAttachmentTypes;
 import dev.mariany.vitality.event.server.ServerTickHandler;
 import dev.mariany.vitality.gamerule.VitalityGamerules;
 import dev.mariany.vitality.packet.Packets;
@@ -18,6 +19,7 @@ public class Vitality implements ModInitializer {
         Packets.register();
         ServerBoundPackets.init();
 
+        ModAttachmentTypes.registerAttachmentTypes();
         VitalityGamerules.registerModGamerules();
         ServerTickHandler.register();
     }
