@@ -8,5 +8,6 @@ public class ServerBoundPackets {
         ServerPlayNetworking.registerGlobalReceiver(WallJumpPacket.ID, WallJumpPacket::handle);
         ServerPlayNetworking.registerGlobalReceiver(ClingPacket.ID, ClingPacket::handle);
         ServerPlayNetworking.registerGlobalReceiver(RequestFoodHistorySync.ID, RequestFoodHistorySync::handle);
+        ServerPlayNetworking.registerGlobalReceiver(RequestGamerulesSync.ID, RequestGamerulesSync::handle);
     }
 }
