@@ -26,9 +26,7 @@ public record ClingedPacket(int entityId, int wallClingTicks) implements CustomP
         int entityId = packet.entityId;
 
         if (world.getEntityById(entityId) instanceof Clingable clingable) {
-            if (player.getId() != entityId) {
-                clingable.vitality$updateWallClingedTicks(packet.wallClingTicks);
-            }
+            clingable.vitality$updateWallClingedTicks(packet.wallClingTicks);
         }
     }
 }

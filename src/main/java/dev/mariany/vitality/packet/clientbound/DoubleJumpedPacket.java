@@ -28,9 +28,7 @@ public record DoubleJumpedPacket(int entityId, double x, double y, double z) imp
         int entityId = packet.entityId;
 
         if (world.getEntityById(entityId) instanceof AnimatablePlayer animatablePlayer) {
-            if (player.getId() != entityId) {
-                animatablePlayer.vitality$playRollAnimation(new Vec3d(packet.x, packet.y, packet.z));
-            }
+            animatablePlayer.vitality$playRollAnimation(new Vec3d(packet.x, packet.y, packet.z));
         }
     }
 }

@@ -7,7 +7,9 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
+import net.minecraft.network.listener.ClientCommonPacketListener;
 import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 
@@ -33,11 +35,10 @@ public record ClingPacket(int wallClingTicks) implements CustomPayload {
         if (player instanceof Clingable clingable) {
             clingable.vitality$updateWallClingedTicks(packet.wallClingTicks);
 
-            for (ServerPlayerEntity otherPlayer : world.getPlayers()) {
-                if (!otherPlayer.equals(player)) {
-                    ServerPlayNetworking.send(otherPlayer, new ClingedPacket(player.getId(), wallClingTicks));
-                }
-            }
+            Packet<ClientCommonPacketListener> clingedPacket = ServerPlayNetworking.createS2CPacket(
+                    new ClingedPacket(player.getId(), wallClingTicks));
+
+            world.getChunkManager().sendToOtherNearbyPlayers(player, clingedPacket);
         }
     }
 }

@@ -7,7 +7,9 @@ import dev.mariany.vitality.util.VitalityUtils;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.listener.ClientCommonPacketListener;
 import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -40,12 +42,10 @@ public record DoubleJumpPacket() implements CustomPayload {
                         motionZ, 0.15);
             }
 
-            for (ServerPlayerEntity otherPlayer : world.getPlayers()) {
-                if (!otherPlayer.equals(player)) {
-                    ServerPlayNetworking.send(otherPlayer,
-                            new DoubleJumpedPacket(player.getId(), movement.x, movement.y, movement.z));
-                }
-            }
+            Packet<ClientCommonPacketListener> doubleJumpedPacket = ServerPlayNetworking.createS2CPacket(
+                    new DoubleJumpedPacket(player.getId(), movement.x, movement.y, movement.z));
+
+            world.getChunkManager().sendToOtherNearbyPlayers(player, doubleJumpedPacket);
         }
     }
 }

@@ -58,11 +58,14 @@ public abstract class AbstractClientPlayerEntityMixin extends PlayerEntity imple
         KeyframeAnimation animation = (KeyframeAnimation) PlayerAnimationRegistry.getAnimation(
                 Vitality.id("roll"));
         KeyframeAnimation.AnimationBuilder copy = animation.mutableCopy();
+
         lastRollDirection = direction;
 
         int fadeIn = copy.beginTick;
         float length = copy.endTick;
+
         speedModifier.speed = length / ((float) VitalityConstants.ROLL_DURATION);
+
         base.replaceAnimationWithFade(AbstractFadeModifier.standardFadeIn(fadeIn, Ease.INOUTELASTIC),
                 new KeyframeAnimationPlayer(copy.build(), 0));
     }
