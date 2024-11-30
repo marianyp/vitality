@@ -105,4 +105,16 @@ public class VitalityUtils {
         Vec3d relativeVec = b.subtract(a.multiply(dot)).normalize();
         return a.multiply(Math.cos(theta)).add(relativeVec.multiply(Math.sin(theta)));
     }
+
+    public static double angleWithSignBetween(Vec3d a, Vec3d b, Vec3d planeNormal) {
+        a = a.normalize();
+        b = b.normalize();
+
+        double cosineTheta = MathHelper.clamp(a.dotProduct(b), -1, 1);
+        double angle = Math.toDegrees(Math.acos(cosineTheta));
+        Vec3d cross = a.crossProduct(b);
+        double sign = cross.dotProduct(planeNormal);
+
+        return angle * Math.signum(sign);
+    }
 }

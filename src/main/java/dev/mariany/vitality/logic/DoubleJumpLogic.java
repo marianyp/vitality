@@ -38,7 +38,7 @@ public class DoubleJumpLogic {
             midAirCooldown = Math.max(0, threshold - 1);
         }
 
-        if (!player.isSubmergedInWater() && !player.isClimbing() && isOnGround(player)) {
+        if (!player.isSubmergedInWater() && !player.isClimbing() && isOnGround(player) && !player.isCreative()) {
             hasReleasedJumpKey = false;
             canDoubleJump = true;
         } else if (!jumping) {

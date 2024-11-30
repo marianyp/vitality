@@ -55,11 +55,13 @@ public abstract class AbstractClientPlayerEntityMixin extends PlayerEntity imple
 
     @Override
     public void vitality$playRollAnimation(Vec3d direction) {
-        KeyframeAnimation animation = (KeyframeAnimation) PlayerAnimationRegistry.getAnimation(
-                Vitality.id("roll"));
+        KeyframeAnimation animation = (KeyframeAnimation) PlayerAnimationRegistry.getAnimation(Vitality.id("roll"));
         KeyframeAnimation.AnimationBuilder copy = animation.mutableCopy();
 
         lastRollDirection = direction;
+
+        // Attempt to smoothen initial transition
+        copy.beginTick += 4;
 
         int fadeIn = copy.beginTick;
         float length = copy.endTick;
@@ -90,8 +92,8 @@ public abstract class AbstractClientPlayerEntityMixin extends PlayerEntity imple
 
                         Vec3d planeNormal = initialOrientation.crossProduct(targetOrientation).normalize();
 
-                        float horizontalAngle = (float) angleWithSignBetween(initialOrientation, currentOrientation,
-                                planeNormal);
+                        float horizontalAngle = (float) VitalityUtils.angleWithSignBetween(initialOrientation,
+                                currentOrientation, planeNormal);
                         float xRot = (float) Math.toRadians(horizontalAngle);
 
                         AdjustmentModifier.PartModifier modifier = new AdjustmentModifier.PartModifier(
@@ -104,18 +106,5 @@ public abstract class AbstractClientPlayerEntityMixin extends PlayerEntity imple
 
             return Optional.empty();
         });
-    }
-
-    @Unique
-    private double angleWithSignBetween(Vec3d a, Vec3d b, Vec3d planeNormal) {
-        a = a.normalize();
-        b = b.normalize();
-
-        double cosineTheta = MathHelper.clamp(a.dotProduct(b), -1, 1);
-        double angle = Math.toDegrees(Math.acos(cosineTheta));
-        Vec3d cross = a.crossProduct(b);
-        double sign = cross.dotProduct(planeNormal);
-
-        return angle * Math.signum(sign);
     }
 }

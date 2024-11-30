@@ -62,7 +62,7 @@ public class WallJumpLogic {
     }
 
     private static void attemptWallJump(PlayerEntity player, float forward, float left, boolean sneaking,
-                                       Consumer<PlayerEntity> onWallJump, BiConsumer<PlayerEntity, Integer> onCling) {
+                                        Consumer<PlayerEntity> onWallJump, BiConsumer<PlayerEntity, Integer> onCling) {
         updateWalls(player);
         ticksKeyDown = sneaking ? ticksKeyDown + 1 : 0;
         BlockPos wallPos = getWallPos(player);
@@ -81,7 +81,28 @@ public class WallJumpLogic {
             return;
         }
 
-        if (!canCling(player, sneaking)) {
+        if (canCling(player, sneaking)) {
+            player.setPos(clingX, player.getY(), clingZ);
+
+            double motionY = player.getVelocity().y;
+
+            if (motionY > 0) {
+                motionY = 0;
+            } else if (motionY < -0.6) {
+                motionY = motionY + 0.2;
+                spawnWallParticle(player, wallPos);
+            } else if (ticksWallClinged++ > VitalityConstants.WALL_SLIDE_DELAY) {
+                motionY = -0.1;
+                spawnWallParticle(player, wallPos);
+            } else {
+                motionY = 0;
+            }
+
+            onCling.accept(player, ticksWallClinged);
+
+            player.setVelocity(0, motionY, 0);
+            player.velocityDirty = true;
+        } else {
             if (ticksWallClinged != 0) {
                 onCling.accept(player, 0);
                 ticksWallClinged = 0;
@@ -95,30 +116,7 @@ public class WallJumpLogic {
                     staleWalls = new HashSet<>(walls);
                 }
             }
-
-            return;
         }
-
-        player.setPos(clingX, player.getY(), clingZ);
-
-        double motionY = player.getVelocity().y;
-
-        if (motionY > 0) {
-            motionY = 0;
-        } else if (motionY < -0.6) {
-            motionY = motionY + 0.2;
-            spawnWallParticle(player, wallPos);
-        } else if (ticksWallClinged++ > VitalityConstants.WALL_SLIDE_DELAY) {
-            motionY = -0.1;
-            spawnWallParticle(player, wallPos);
-        } else {
-            motionY = 0;
-        }
-
-        onCling.accept(player, ticksWallClinged);
-
-        player.setVelocity(0, motionY, 0);
-        player.velocityDirty = true;
     }
 
     public static boolean canCling(PlayerEntity player) {
@@ -129,7 +127,7 @@ public class WallJumpLogic {
         World world = player.getWorld();
         BlockPos blockPos = player.getBlockPos();
         FluidState fluidState = world.getFluidState(blockPos);
-        return sneaking && !player.isOnGround() && fluidState.isEmpty();
+        return sneaking && !player.isOnGround() && fluidState.isEmpty() && !walls.isEmpty();
     }
 
     private static boolean canClingConsideringWalls(PlayerEntity player) {
