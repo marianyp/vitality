@@ -9,7 +9,6 @@ import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.world.GameRules;
 
 public record BooleanGameruleUpdatePacket(String gamerule, boolean value) implements CustomPayload {
     public static final Id<BooleanGameruleUpdatePacket> ID = new Id<>(Vitality.id("boolean_gamerule_updated"));
@@ -28,18 +27,8 @@ public record BooleanGameruleUpdatePacket(String gamerule, boolean value) implem
         String gameruleName = packet.gamerule();
         boolean value = packet.value;
 
-        GameRules.Key<GameRules.BooleanRule> gamerule = null;
+        VitalityGamerules.BOOLEAN_RULES.stream().filter(key -> key.getName().equals(gameruleName)).findFirst()
+                .ifPresent(gamerule -> world.getGameRules().get(gamerule).set(value, null));
 
-        if (VitalityGamerules.ALLOW_WALL_JUMP.getName().equals(gameruleName)) {
-            gamerule = VitalityGamerules.ALLOW_WALL_JUMP;
-        }
-
-        if (VitalityGamerules.ALLOW_DOUBLE_JUMP.getName().equals(gameruleName)) {
-            gamerule = VitalityGamerules.ALLOW_DOUBLE_JUMP;
-        }
-
-        if (gamerule != null) {
-            world.getGameRules().get(gamerule).set(value, null);
-        }
     }
 }

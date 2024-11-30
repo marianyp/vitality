@@ -27,15 +27,11 @@ public class GameRuleCommandMixin {
         ServerCommandSource serverCommandSource = context.getSource();
         MinecraftServer server = serverCommandSource.getServer();
 
-        if (key.equals(VitalityGamerules.ALLOW_WALL_JUMP) || key.equals(VitalityGamerules.ALLOW_DOUBLE_JUMP)) {
-            GameRules.Key<GameRules.BooleanRule> ruleKey = (GameRules.Key<GameRules.BooleanRule>) key;
-            updateBooleanGamerule(ruleKey, BoolArgumentType.getBool(context, "value"), server);
-        }
+        VitalityGamerules.BOOLEAN_RULES.stream().filter(intKey -> intKey.equals(key)).findFirst().ifPresent(
+                gamerule -> updateBooleanGamerule(gamerule, BoolArgumentType.getBool(context, "value"), server));
 
-        if (key.equals(VitalityGamerules.HEALTHY_EATING_WINDOW)) {
-            GameRules.Key<GameRules.IntRule> ruleKey = (GameRules.Key<GameRules.IntRule>) key;
-            updateIntGamerule(ruleKey, IntegerArgumentType.getInteger(context, "value"), server);
-        }
+        VitalityGamerules.INT_RULES.stream().filter(intKey -> intKey.equals(key)).findFirst().ifPresent(
+                gamerule -> updateIntGamerule(gamerule, IntegerArgumentType.getInteger(context, "value"), server));
     }
 
     @Unique

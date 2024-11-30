@@ -24,9 +24,13 @@ public record RequestGamerulesSync() implements CustomPayload {
     public static void handle(RequestGamerulesSync packet, ServerPlayNetworking.Context context) {
         MinecraftServer server = context.server();
 
-        context.responseSender().sendPacket(getBoolPacket(server, VitalityGamerules.ALLOW_WALL_JUMP));
-        context.responseSender().sendPacket(getBoolPacket(server, VitalityGamerules.ALLOW_DOUBLE_JUMP));
-        context.responseSender().sendPacket(getIntPacket(server, VitalityGamerules.HEALTHY_EATING_WINDOW));
+        for (GameRules.Key<GameRules.BooleanRule> booleanRule : VitalityGamerules.BOOLEAN_RULES) {
+            context.responseSender().sendPacket(getBoolPacket(server, booleanRule));
+        }
+
+        for (GameRules.Key<GameRules.IntRule> intRule : VitalityGamerules.INT_RULES) {
+            context.responseSender().sendPacket(getIntPacket(server, intRule));
+        }
     }
 
     private static CustomPayload getBoolPacket(MinecraftServer server, GameRules.Key<GameRules.BooleanRule> key) {

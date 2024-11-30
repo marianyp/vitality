@@ -9,7 +9,6 @@ import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.world.GameRules;
 
 public record IntGameruleUpdatePacket(String gamerule, int value) implements CustomPayload {
     public static final Id<IntGameruleUpdatePacket> ID = new Id<>(Vitality.id("int_gamerule_updated"));
@@ -28,14 +27,7 @@ public record IntGameruleUpdatePacket(String gamerule, int value) implements Cus
         String gameruleName = packet.gamerule();
         int value = packet.value;
 
-        GameRules.Key<GameRules.IntRule> gamerule = null;
-
-        switch (gameruleName) {
-            case "healthyEatingWindow" -> gamerule = VitalityGamerules.HEALTHY_EATING_WINDOW;
-        }
-
-        if (gamerule != null) {
-            world.getGameRules().get(gamerule).set(value, null);
-        }
+        VitalityGamerules.INT_RULES.stream().filter(key -> key.getName().equals(gameruleName)).findFirst()
+                .ifPresent(gamerule -> world.getGameRules().get(gamerule).set(value, null));
     }
 }

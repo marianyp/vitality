@@ -11,6 +11,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Difficulty;
@@ -73,8 +74,11 @@ public class VitalityUtils {
                 foodHistory.stream().map(Item::getRegistryEntry).map(reference -> (RegistryEntry<Item>) reference)
                         .toList());
 
-        if (!player.getWorld().isClient) {
-            if (!hasMovementBuffs && hasMovementBuffs(player)) {
+
+        if (player.getWorld() instanceof ServerWorld world) {
+            boolean improveDietRegeneration = world.getGameRules().get(VitalityGamerules.IMPROVE_DIET_REGENERATION)
+                    .get();
+            if (improveDietRegeneration && !hasMovementBuffs && hasMovementBuffs(player)) {
                 player.addStatusEffect(
                         new StatusEffectInstance(StatusEffects.REGENERATION, 20 * 5, 0, false, true, true));
             }
