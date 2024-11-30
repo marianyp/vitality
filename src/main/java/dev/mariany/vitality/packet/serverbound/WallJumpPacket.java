@@ -1,7 +1,7 @@
 package dev.mariany.vitality.packet.serverbound;
 
 import dev.mariany.vitality.Vitality;
-import dev.mariany.vitality.util.VitalityConstants;
+import dev.mariany.vitality.util.VitalityUtils;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
@@ -20,6 +20,6 @@ public record WallJumpPacket() implements CustomPayload {
     public static void handle(WallJumpPacket packet, ServerPlayNetworking.Context context) {
         ServerPlayerEntity player = context.player();
         player.fallDistance = 0;
-        player.getHungerManager().addExhaustion(VitalityConstants.WALL_JUMP_EXHAUSTION);
+        VitalityUtils.exhaust(player, 1, 1.5F);
     }
 }

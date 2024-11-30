@@ -6,6 +6,7 @@ import dev.mariany.vitality.tag.VitalityTags;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.entity.player.HungerManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -116,5 +117,17 @@ public class VitalityUtils {
         double sign = cross.dotProduct(planeNormal);
 
         return angle * Math.signum(sign);
+    }
+
+    public static void exhaust(PlayerEntity player, float min, float max) {
+        HungerManager hungerManager = player.getHungerManager();
+
+        float exhaustion = min;
+
+        if (hungerManager.getFoodLevel() >= 18) {
+            exhaustion = max;
+        }
+
+        hungerManager.addExhaustion(exhaustion);
     }
 }

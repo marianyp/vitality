@@ -4,7 +4,6 @@ import dev.mariany.vitality.sound.VitalitySoundEvents;
 import dev.mariany.vitality.util.VitalityUtils;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.HungerManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.stat.Stats;
@@ -84,12 +83,10 @@ public class DoubleJumpLogic {
         if (!world.isClient) {
             player.incrementStat(Stats.JUMP);
 
-            HungerManager hungerManager = player.getHungerManager();
-
             if (player.isSprinting()) {
-                hungerManager.addExhaustion(0.4F);
+                VitalityUtils.exhaust(player, 0.55F, 2.5F);
             } else {
-                hungerManager.addExhaustion(0.15F);
+                VitalityUtils.exhaust(player, 0.2F, 1.6F);
             }
 
             world.playSound(null, player.getBlockPos(), VitalitySoundEvents.DOUBLE_JUMP, SoundCategory.PLAYERS, 0.215F,
