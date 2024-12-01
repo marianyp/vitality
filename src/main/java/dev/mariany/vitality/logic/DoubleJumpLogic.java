@@ -37,12 +37,12 @@ public class DoubleJumpLogic {
             midAirCooldown = Math.max(0, threshold - 1);
         }
 
-        if (!player.isSubmergedInWater() && !player.isClimbing() && isOnGround(player) && !player.isCreative()) {
+        if (!player.isSubmergedInWater() && !player.isClimbing() && isOnGround(player)) {
             hasReleasedJumpKey = false;
             canDoubleJump = true;
         } else if (!jumping) {
             hasReleasedJumpKey = true;
-        } else if (!player.getAbilities().flying && canDoubleJump && hasReleasedJumpKey && !player.isSubmergedInWater() && !player.isClimbing()) {
+        } else if (!player.getAbilities().flying && canDoubleJump && hasReleasedJumpKey && !player.isSubmergedInWater() && !player.isClimbing() && !player.isCreative()) {
             canDoubleJump = false;
             if (VitalityUtils.canDoubleJump(player)) {
                 return doubleJump(player);
@@ -53,6 +53,8 @@ public class DoubleJumpLogic {
 
     public static Vec3d doubleJump(PlayerEntity player) {
         World world = player.getWorld();
+        boolean sneaking = player.isSneaking();
+        float exhaustMultiplier = 1F;
 
         player.fallDistance = 0;
         player.setIgnoreFallDamageFromCurrentExplosion(true);
@@ -70,6 +72,11 @@ public class DoubleJumpLogic {
             upwardsMotion *= 1 + JUMP_MULTIPLIER;
         }
 
+        if (sneaking) {
+            upwardsMotion += 0.25;
+            exhaustMultiplier = 1.5F;
+        }
+
         Vec3d motion = player.getVelocity();
 
         float yaw = (float) Math.toRadians(player.getYaw());
@@ -84,9 +91,9 @@ public class DoubleJumpLogic {
             player.incrementStat(Stats.JUMP);
 
             if (player.isSprinting()) {
-                VitalityUtils.exhaust(player, 0.55F, 2.5F);
+                VitalityUtils.exhaust(player, 0.55F * exhaustMultiplier, 2.5F * exhaustMultiplier);
             } else {
-                VitalityUtils.exhaust(player, 0.2F, 1.6F);
+                VitalityUtils.exhaust(player, 0.2F * exhaustMultiplier, 1.6F * exhaustMultiplier);
             }
 
             world.playSound(null, player.getBlockPos(), VitalitySoundEvents.DOUBLE_JUMP, SoundCategory.PLAYERS, 0.215F,
