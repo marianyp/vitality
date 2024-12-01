@@ -43,10 +43,10 @@ public class ClientTickHandler {
             if (ticks > 0) {
                 player.fallDistance = 0;
             }
-            ClientPlayNetworking.send(new ClingPacket(ticks));
             if (player instanceof Clingable clingable) {
                 clingable.vitality$updateWallClingedTicks(ticks);
             }
+            ClientPlayNetworking.send(new ClingPacket(ticks));
         };
 
         WallJumpLogic.handleWallJumpInput(clientPlayer, clientPlayer.input.movementForward,

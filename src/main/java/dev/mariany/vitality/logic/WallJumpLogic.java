@@ -1,5 +1,6 @@
 package dev.mariany.vitality.logic;
 
+import dev.mariany.vitality.client.model.Clingable;
 import dev.mariany.vitality.util.VitalityConstants;
 import dev.mariany.vitality.util.VitalityUtils;
 import net.minecraft.block.BlockRenderType;
@@ -31,7 +32,6 @@ public class WallJumpLogic {
     private static int ticksKeyDown;
     private static double clingX, clingZ;
 
-    private static Set<Direction> walls = new HashSet<>();
     private static Set<Direction> staleWalls = new HashSet<>();
 
     public static void resetCling() {
@@ -63,8 +63,10 @@ public class WallJumpLogic {
 
     private static void attemptWallJump(PlayerEntity player, float forward, float left, boolean sneaking,
                                         Consumer<PlayerEntity> onWallJump, BiConsumer<PlayerEntity, Integer> onCling) {
-        updateWalls(player);
+        updateWallCollisions(player);
         ticksKeyDown = sneaking ? ticksKeyDown + 1 : 0;
+
+        Set<Direction> walls = getWallDirections(player);
         BlockPos wallPos = getWallPos(player);
 
         if (ticksWallClinged < 1) {
@@ -81,7 +83,7 @@ public class WallJumpLogic {
             return;
         }
 
-        if (canCling(player, sneaking)) {
+        if (canCling(player, sneaking) && !walls.isEmpty()) {
             player.setPos(clingX, player.getY(), clingZ);
 
             double motionY = player.getVelocity().y;
@@ -127,7 +129,7 @@ public class WallJumpLogic {
         World world = player.getWorld();
         BlockPos blockPos = player.getBlockPos();
         FluidState fluidState = world.getFluidState(blockPos);
-        return sneaking && !player.isOnGround() && fluidState.isEmpty() && !walls.isEmpty();
+        return sneaking && !player.isOnGround() && fluidState.isEmpty() && !getWallDirections(player).isEmpty();
     }
 
     private static boolean canClingConsideringWalls(PlayerEntity player) {
@@ -139,31 +141,44 @@ public class WallJumpLogic {
             return false;
         }
 
-        return !staleWalls.containsAll(walls);
+        return !staleWalls.containsAll(getWallDirections(player));
     }
 
     private static boolean collidesWithBlock(World world, Box box) {
         return !world.isSpaceEmpty(box);
     }
 
-    private static void updateWalls(Entity entity) {
-        Vec3d pos = entity.getPos();
-        Box box = new Box(pos.x - 0.001, pos.y, pos.z - 0.001, pos.x + 0.001,
-                pos.y + entity.getEyeHeight(entity.getPose()), pos.z + 0.001);
+    private static Set<Direction> getWallDirections(Entity entity) {
+        Set<Direction> walls = new HashSet<>();
+        if (entity instanceof Clingable clingable) {
+            boolean clinging = clingable.vitality$isClinging();
 
-        double dist = (entity.getWidth() / 2) + (ticksWallClinged > 0 ? 0.1 : 0.06);
-        Box[] axes = {box.expand(0, 0, dist), box.expand(-dist, 0, 0), box.expand(0, 0, -dist), box.expand(dist, 0, 0)};
+            Vec3d pos = entity.getPos();
+            Box box = new Box(pos.x - 0.001, pos.y, pos.z - 0.001, pos.x + 0.001,
+                    pos.y + entity.getEyeHeight(entity.getPose()), pos.z + 0.001);
 
-        int i = 0;
-        Direction direction;
-        WallJumpLogic.walls = new HashSet<>();
-        for (Box axis : axes) {
-            direction = Direction.fromHorizontal(i++);
+            double dist = (entity.getWidth() / 2) + (clinging ? 0.1 : 0.06);
+            Box[] axes = {box.expand(0, 0, dist), box.expand(-dist, 0, 0), box.expand(0, 0, -dist), box.expand(dist, 0,
+                    0)};
 
-            if (collidesWithBlock(entity.getWorld(), axis)) {
-                walls.add(direction);
-                entity.horizontalCollision = true;
+            int i = 0;
+            Direction direction;
+
+            for (Box axis : axes) {
+                direction = Direction.fromHorizontal(i++);
+
+                if (collidesWithBlock(entity.getWorld(), axis)) {
+                    walls.add(direction);
+                }
             }
+        }
+
+        return walls;
+    }
+
+    private static void updateWallCollisions(Entity entity) {
+        if (!getWallDirections(entity).isEmpty()) {
+            entity.horizontalCollision = true;
         }
     }
 
@@ -184,7 +199,7 @@ public class WallJumpLogic {
 
         Map<Direction, BlockPos> blockPositions = new HashMap<>();
 
-        for (Direction direction : walls) {
+        for (Direction direction : getWallDirections(entity)) {
             BlockPos blockPos = BlockPos.ofFloored(eyePos).offset(direction);
             blockPositions.put(direction, blockPos);
         }

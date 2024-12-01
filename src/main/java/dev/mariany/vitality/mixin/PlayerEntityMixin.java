@@ -1,7 +1,6 @@
 package dev.mariany.vitality.mixin;
 
 import dev.mariany.vitality.client.model.Clingable;
-import dev.mariany.vitality.logic.WallJumpLogic;
 import dev.mariany.vitality.util.VitalityUtils;
 import net.minecraft.component.type.FoodComponent;
 import net.minecraft.entity.player.PlayerEntity;
@@ -27,8 +26,7 @@ public class PlayerEntityMixin implements Clingable {
 
     @Override
     public boolean vitality$isClinging() {
-        PlayerEntity player = (PlayerEntity) (Object) this;
-        return WallJumpLogic.canCling(player) && wallClingedTicks > 0;
+        return wallClingedTicks > 0;
     }
 
     @Override

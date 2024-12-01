@@ -13,6 +13,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 public class DoubleJumpLogic {
+    private static final float CROUCH_ADDITION = 0.175F;
     private static final float JUMP_MULTIPLIER = 0.25F;
     private static final float SPRINT_MULTIPLIER = 0.25F;
     private static final int MIDAIR_DELAY = 3;
@@ -73,7 +74,7 @@ public class DoubleJumpLogic {
         }
 
         if (sneaking) {
-            upwardsMotion += 0.25;
+            upwardsMotion += CROUCH_ADDITION;
             exhaustMultiplier = 1.5F;
         }
 
