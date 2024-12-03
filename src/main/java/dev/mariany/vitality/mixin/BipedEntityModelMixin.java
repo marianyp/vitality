@@ -1,6 +1,6 @@
 package dev.mariany.vitality.mixin;
 
-import dev.mariany.vitality.client.model.Clingable;
+import dev.mariany.vitality.entity.ClingingEntity;
 import dev.mariany.vitality.logic.WallJumpLogic;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -28,7 +28,7 @@ public abstract class BipedEntityModelMixin<T extends LivingEntity> extends Anim
     @Inject(method = "setAngles(Lnet/minecraft/entity/LivingEntity;FFFFF)V", at = @At(value = "TAIL"))
     private void injectSetAngles(T entity, float f, float g, float h, float i, float j, CallbackInfo ci) {
         if (entity instanceof ClientPlayerEntity player) {
-            if (player instanceof Clingable clingable && clingable.vitality$isClinging() && WallJumpLogic.canCling(player)) {
+            if (player instanceof ClingingEntity clingingEntity && clingingEntity.vitality$isClinging() && WallJumpLogic.canCling(player)) {
                 CrossbowPosing.meleeAttack(leftArm, rightArm, true, this.handSwingProgress, h);
             }
         }

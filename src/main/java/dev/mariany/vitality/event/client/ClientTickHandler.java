@@ -1,12 +1,12 @@
 package dev.mariany.vitality.event.client;
 
 import dev.mariany.vitality.client.animation.AnimatablePlayer;
-import dev.mariany.vitality.client.model.Clingable;
+import dev.mariany.vitality.entity.ClingingEntity;
+import dev.mariany.vitality.entity.SoftLandingEntity;
 import dev.mariany.vitality.logic.DoubleJumpLogic;
+import dev.mariany.vitality.logic.SoftLandingLogic;
 import dev.mariany.vitality.logic.WallJumpLogic;
-import dev.mariany.vitality.packet.serverbound.ClingPacket;
-import dev.mariany.vitality.packet.serverbound.DoubleJumpPacket;
-import dev.mariany.vitality.packet.serverbound.WallJumpPacket;
+import dev.mariany.vitality.packet.serverbound.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -29,6 +29,7 @@ public class ClientTickHandler {
         ClientPlayerEntity player = instance.player;
         if (player != null && player.input != null) {
             handleWallJump(player);
+            handleSoftLanding(player);
             handleDoubleJump(player);
         }
     }
@@ -43,26 +44,49 @@ public class ClientTickHandler {
             if (ticks > 0) {
                 player.fallDistance = 0;
             }
-            if (player instanceof Clingable clingable) {
-                clingable.vitality$updateWallClingedTicks(ticks);
+            if (player instanceof ClingingEntity clingingEntity) {
+                clingingEntity.vitality$updateWallClingedTicks(ticks);
+            }
+            if (player instanceof SoftLandingEntity softLandingEntity) {
+                softLandingEntity.vitality$setWillSoftLand(false);
             }
             ClientPlayNetworking.send(new ClingPacket(ticks));
         };
 
-        WallJumpLogic.handleWallJumpInput(clientPlayer, clientPlayer.input.movementForward,
-                clientPlayer.input.movementSideways, clientPlayer.input.sneaking, onWallJump, onCling);
+        WallJumpLogic.handleInput(clientPlayer, clientPlayer.input.movementForward, clientPlayer.input.movementSideways,
+                clientPlayer.input.sneaking, onWallJump, onCling);
     }
 
     private static void handleDoubleJump(ClientPlayerEntity player) {
-        Vec3d direction = DoubleJumpLogic.handleDoubleJumpInput(player, player.input.jumping);
+        Vec3d direction = DoubleJumpLogic.handleInput(player, player.input.jumping);
+
         if (direction != null) {
             ClientPlayNetworking.send(new DoubleJumpPacket());
-            WallJumpLogic.resetCling();
             playVisuals(player, direction);
+            WallJumpLogic.resetCling();
+        }
+    }
+
+    private static void handleSoftLanding(ClientPlayerEntity clientPlayer) {
+        Consumer<PlayerEntity> onTriggerSoftLand = (player) -> {
+            ClientPlayNetworking.send(new TriggerSoftLandPacket()); // Update willSoftLand state on server
+        };
+
+        Vec3d direction = SoftLandingLogic.handleInput(clientPlayer, clientPlayer.input.jumping,
+                clientPlayer.input.movementForward, clientPlayer.input.movementSideways, onTriggerSoftLand);
+
+        if (direction != null) {
+            ClientPlayNetworking.send(new CompletedSoftLandPacket(direction.x, direction.y,
+                    direction.z)); // Display animation to other players on server
+            playVisuals(clientPlayer, direction, 1 + (SoftLandingLogic.DISTANCE / 2));
         }
     }
 
     private static void playVisuals(ClientPlayerEntity player, Vec3d direction) {
         ((AnimatablePlayer) player).vitality$playRollAnimation(direction);
+    }
+
+    private static void playVisuals(ClientPlayerEntity player, Vec3d direction, float speedMultiplier) {
+        ((AnimatablePlayer) player).vitality$playRollAnimation(direction, speedMultiplier);
     }
 }

@@ -21,6 +21,8 @@ public class VitalityGamerules {
             GameRules.Category.MISC, Either.left(true));
     public static final GameRules.Key<GameRules.BooleanRule> ALLOW_DOUBLE_JUMP = register("allowDoubleJump",
             GameRules.Category.MISC, Either.left(true));
+    public static final GameRules.Key<GameRules.BooleanRule> ALLOW_SOFT_LAND = register("allowSoftLand",
+            GameRules.Category.MISC, Either.left(true));
     public static final GameRules.Key<GameRules.BooleanRule> IMPROVE_DIET_REGENERATION = register(
             "improveDietRegeneration", GameRules.Category.MISC, Either.left(true));
 

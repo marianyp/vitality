@@ -100,6 +100,11 @@ public class VitalityUtils {
                 .get();
     }
 
+    public static boolean canSoftLand(PlayerEntity player) {
+        return hasMovementBuffs(player) && player.getWorld().getGameRules().get(VitalityGamerules.ALLOW_SOFT_LAND)
+                .get();
+    }
+
     public static Vec3d slerp(Vec3d a, Vec3d b, float t) {
         a = a.normalize();
         b = b.normalize();

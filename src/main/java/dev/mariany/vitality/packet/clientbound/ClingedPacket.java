@@ -1,10 +1,12 @@
 package dev.mariany.vitality.packet.clientbound;
 
 import dev.mariany.vitality.Vitality;
-import dev.mariany.vitality.client.model.Clingable;
+import dev.mariany.vitality.entity.ClingingEntity;
+import dev.mariany.vitality.entity.SoftLandingEntity;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.Entity;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
@@ -25,8 +27,14 @@ public record ClingedPacket(int entityId, int wallClingTicks) implements CustomP
         ClientWorld world = player.clientWorld;
         int entityId = packet.entityId;
 
-        if (world.getEntityById(entityId) instanceof Clingable clingable) {
-            clingable.vitality$updateWallClingedTicks(packet.wallClingTicks);
+        Entity entity = world.getEntityById(entityId);
+
+        if (entity instanceof ClingingEntity clingingEntity) {
+            clingingEntity.vitality$updateWallClingedTicks(packet.wallClingTicks);
+        }
+
+        if (entity instanceof SoftLandingEntity softLandingEntity) {
+            softLandingEntity.vitality$setWillSoftLand(false);
         }
     }
 }

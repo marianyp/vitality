@@ -15,6 +15,7 @@ public class Packets {
         registry.register(FoodHistorySyncPacket.ID, FoodHistorySyncPacket.CODEC);
         registry.register(DoubleJumpedPacket.ID, DoubleJumpedPacket.CODEC);
         registry.register(ClingedPacket.ID, ClingedPacket.CODEC);
+        registry.register(SoftLandedPacket.ID, SoftLandedPacket.CODEC);
         registry.register(BooleanGameruleUpdatePacket.ID, BooleanGameruleUpdatePacket.CODEC);
         registry.register(IntGameruleUpdatePacket.ID, IntGameruleUpdatePacket.CODEC);
     }
@@ -23,6 +24,8 @@ public class Packets {
         registry.register(DoubleJumpPacket.ID, DoubleJumpPacket.CODEC);
         registry.register(WallJumpPacket.ID, WallJumpPacket.CODEC);
         registry.register(ClingPacket.ID, ClingPacket.CODEC);
+        registry.register(TriggerSoftLandPacket.ID, TriggerSoftLandPacket.CODEC);
+        registry.register(CompletedSoftLandPacket.ID, CompletedSoftLandPacket.CODEC);
         registry.register(RequestFoodHistorySync.ID, RequestFoodHistorySync.CODEC);
         registry.register(RequestGamerulesSync.ID, RequestGamerulesSync.CODEC);
     }

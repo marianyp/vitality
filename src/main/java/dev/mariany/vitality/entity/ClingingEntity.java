@@ -1,6 +1,6 @@
-package dev.mariany.vitality.client.model;
+package dev.mariany.vitality.entity;
 
-public interface Clingable {
+public interface ClingingEntity {
     boolean vitality$isClinging();
     void vitality$updateWallClingedTicks(int value);
 }

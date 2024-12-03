@@ -1,7 +1,8 @@
 package dev.mariany.vitality.packet.serverbound;
 
 import dev.mariany.vitality.Vitality;
-import dev.mariany.vitality.client.model.Clingable;
+import dev.mariany.vitality.entity.ClingingEntity;
+import dev.mariany.vitality.entity.SoftLandingEntity;
 import dev.mariany.vitality.packet.clientbound.ClingedPacket;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryByteBuf;
@@ -32,13 +33,17 @@ public record ClingPacket(int wallClingTicks) implements CustomPayload {
             player.fallDistance = 0;
         }
 
-        if (player instanceof Clingable clingable) {
-            clingable.vitality$updateWallClingedTicks(packet.wallClingTicks);
-
-            Packet<ClientCommonPacketListener> clingedPacket = ServerPlayNetworking.createS2CPacket(
-                    new ClingedPacket(player.getId(), wallClingTicks));
-
-            world.getChunkManager().sendToOtherNearbyPlayers(player, clingedPacket);
+        if (player instanceof ClingingEntity clingingEntity) {
+            clingingEntity.vitality$updateWallClingedTicks(packet.wallClingTicks);
         }
+
+        if (player instanceof SoftLandingEntity softLandingEntity) {
+            softLandingEntity.vitality$setWillSoftLand(false);
+        }
+
+        Packet<ClientCommonPacketListener> clingedPacket = ServerPlayNetworking.createS2CPacket(
+                new ClingedPacket(player.getId(), wallClingTicks));
+
+        world.getChunkManager().sendToOtherNearbyPlayers(player, clingedPacket);
     }
 }

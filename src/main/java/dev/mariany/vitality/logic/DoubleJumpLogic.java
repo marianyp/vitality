@@ -1,5 +1,6 @@
 package dev.mariany.vitality.logic;
 
+import dev.mariany.vitality.entity.SoftLandingEntity;
 import dev.mariany.vitality.sound.VitalitySoundEvents;
 import dev.mariany.vitality.util.VitalityUtils;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -30,7 +31,7 @@ public class DoubleJumpLogic {
     }
 
     @Nullable
-    public static Vec3d handleDoubleJumpInput(PlayerEntity player, boolean jumping) {
+    public static Vec3d handleInput(PlayerEntity player, boolean jumping) {
         if (player.isOnGround()) {
             midAirCooldown = MIDAIR_DELAY;
         } else {
@@ -60,6 +61,10 @@ public class DoubleJumpLogic {
         player.fallDistance = 0;
         player.setIgnoreFallDamageFromCurrentExplosion(true);
         player.currentExplosionImpactPos = player.getPos();
+
+        if (player instanceof SoftLandingEntity softLandingEntity) {
+            softLandingEntity.vitality$setWillSoftLand(false);
+        }
 
         double upwardsMotion = 0.5;
 

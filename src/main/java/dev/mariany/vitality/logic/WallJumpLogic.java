@@ -1,6 +1,6 @@
 package dev.mariany.vitality.logic;
 
-import dev.mariany.vitality.client.model.Clingable;
+import dev.mariany.vitality.entity.ClingingEntity;
 import dev.mariany.vitality.util.VitalityConstants;
 import dev.mariany.vitality.util.VitalityUtils;
 import net.minecraft.block.BlockRenderType;
@@ -39,9 +39,8 @@ public class WallJumpLogic {
         wallJumpCount = 0;
     }
 
-    public static void handleWallJumpInput(PlayerEntity player, float forward, float left, boolean sneaking,
-                                           Consumer<PlayerEntity> onWallJump,
-                                           BiConsumer<PlayerEntity, Integer> onCling) {
+    public static void handleInput(PlayerEntity player, float forward, float sideways, boolean sneaking,
+                                   Consumer<PlayerEntity> onWallJump, BiConsumer<PlayerEntity, Integer> onCling) {
         World world = player.getWorld();
         BlockPos blockPos = player.getBlockPos();
 
@@ -57,11 +56,11 @@ public class WallJumpLogic {
             staleWalls.clear();
             wallJumpCount = 0;
         } else if (VitalityUtils.canWallJump(player)) {
-            attemptWallJump(player, forward, left, sneaking, onWallJump, onCling);
+            attemptWallJump(player, forward, sideways, sneaking, onWallJump, onCling);
         }
     }
 
-    private static void attemptWallJump(PlayerEntity player, float forward, float left, boolean sneaking,
+    private static void attemptWallJump(PlayerEntity player, float forward, float sideways, boolean sneaking,
                                         Consumer<PlayerEntity> onWallJump, BiConsumer<PlayerEntity, Integer> onCling) {
         updateWallCollisions(player);
         ticksKeyDown = sneaking ? ticksKeyDown + 1 : 0;
@@ -110,9 +109,9 @@ public class WallJumpLogic {
                 ticksWallClinged = 0;
             }
 
-            if ((forward != 0 || left != 0) && !player.isOnGround() && !walls.isEmpty()) {
+            if ((forward != 0 || sideways != 0) && !player.isOnGround() && !walls.isEmpty()) {
                 onWallJump.accept(player);
-                wallJump(player, forward, left, VitalityConstants.WALL_JUMP_HEIGHT);
+                wallJump(player, forward, sideways, VitalityConstants.WALL_JUMP_HEIGHT);
 
                 if (wallJumpCount >= VitalityConstants.MAX_WALL_JUMPS) {
                     staleWalls = new HashSet<>(walls);
@@ -150,8 +149,8 @@ public class WallJumpLogic {
 
     private static Set<Direction> getWallDirections(Entity entity) {
         Set<Direction> walls = new HashSet<>();
-        if (entity instanceof Clingable clingable) {
-            boolean clinging = clingable.vitality$isClinging();
+        if (entity instanceof ClingingEntity clingingEntity) {
+            boolean clinging = clingingEntity.vitality$isClinging();
 
             Vec3d pos = entity.getPos();
             Box box = new Box(pos.x - 0.001, pos.y, pos.z - 0.001, pos.x + 0.001,

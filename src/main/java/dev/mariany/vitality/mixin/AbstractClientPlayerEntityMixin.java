@@ -53,8 +53,17 @@ public abstract class AbstractClientPlayerEntityMixin extends PlayerEntity imple
     @Unique
     private Vec3d lastRollDirection;
 
+    public boolean vitality$isAnimating() {
+        return base.isActive();
+    }
+
     @Override
     public void vitality$playRollAnimation(Vec3d direction) {
+        vitality$playRollAnimation(direction, 1);
+    }
+
+    @Override
+    public void vitality$playRollAnimation(Vec3d direction, float speedMultiplier) {
         KeyframeAnimation animation = (KeyframeAnimation) PlayerAnimationRegistry.getAnimation(Vitality.id("roll"));
         KeyframeAnimation.AnimationBuilder copy = animation.mutableCopy();
 
@@ -66,7 +75,7 @@ public abstract class AbstractClientPlayerEntityMixin extends PlayerEntity imple
         int fadeIn = copy.beginTick;
         float length = copy.endTick;
 
-        speedModifier.speed = length / ((float) VitalityConstants.ROLL_DURATION);
+        speedModifier.speed = length / (VitalityConstants.ROLL_DURATION * speedMultiplier);
 
         base.replaceAnimationWithFade(AbstractFadeModifier.standardFadeIn(fadeIn, Ease.INOUTELASTIC),
                 new KeyframeAnimationPlayer(copy.build(), 0));
