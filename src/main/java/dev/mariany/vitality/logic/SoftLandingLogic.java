@@ -18,6 +18,7 @@ public class SoftLandingLogic {
     private static final int MAX_GROUND_DISTANCE = 7;
 
     private static boolean locked = false;
+    private static boolean descending = false;
     private static float previousFallDistance = 0;
     private static Double previousExplosionY = null;
 
@@ -35,13 +36,16 @@ public class SoftLandingLogic {
 
             if (player.fallDistance > previousFallDistance) {
                 previousFallDistance = player.fallDistance;
+                descending = true;
+            } else {
+                descending = false;
             }
 
             if (player.currentExplosionImpactPos != null) {
                 previousExplosionY = player.currentExplosionImpactPos.y;
             }
 
-            if (!willSoftLand && !locked && jumping && canTrigger) {
+            if (!willSoftLand && !locked && jumping && canTrigger && descending) {
                 softLandingEntity.vitality$setWillSoftLand(true);
                 onTriggerSoftLand.accept(player);
             }
@@ -51,6 +55,7 @@ public class SoftLandingLogic {
 
                 previousExplosionY = null;
                 previousFallDistance = 0;
+                descending = false;
 
                 if (willSoftLand) {
                     locked = true;
