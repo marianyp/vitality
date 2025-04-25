@@ -53,12 +53,12 @@ public class ClientTickHandler {
             ClientPlayNetworking.send(new ClingPacket(ticks));
         };
 
-        WallJumpLogic.handleInput(clientPlayer, clientPlayer.input.movementForward, clientPlayer.input.movementSideways,
-                clientPlayer.input.sneaking, onWallJump, onCling);
+        WallJumpLogic.handleInput(clientPlayer, clientPlayer.input.getMovementInput().y,
+                clientPlayer.input.getMovementInput().x, clientPlayer.input.playerInput.sneak(), onWallJump, onCling);
     }
 
     private static void handleDoubleJump(ClientPlayerEntity player) {
-        Vec3d direction = DoubleJumpLogic.handleInput(player, player.input.jumping);
+        Vec3d direction = DoubleJumpLogic.handleInput(player, player.input.playerInput.jump());
 
         if (direction != null) {
             ClientPlayNetworking.send(new DoubleJumpPacket());
@@ -72,8 +72,8 @@ public class ClientTickHandler {
             ClientPlayNetworking.send(new TriggerSoftLandPacket()); // Update willSoftLand state on server
         };
 
-        Vec3d direction = SoftLandingLogic.handleInput(clientPlayer, clientPlayer.input.jumping,
-                clientPlayer.input.movementForward, clientPlayer.input.movementSideways, onTriggerSoftLand);
+        Vec3d direction = SoftLandingLogic.handleInput(clientPlayer, clientPlayer.input.playerInput.jump(),
+                clientPlayer.input.getMovementInput().y, clientPlayer.input.getMovementInput().x, onTriggerSoftLand);
 
         if (direction != null) {
             ClientPlayNetworking.send(new CompletedSoftLandPacket(direction.x, direction.y,

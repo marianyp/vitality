@@ -3,7 +3,7 @@
   "package": "dev.mariany.vitality.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "GameRuleCommandMixin",
+    "FoodComponentMixin",
     "PlayerEntityMixin",
     "PlayerScreenHandlerMixin"
   ],
@@ -12,7 +12,9 @@
   },
   "client": [
     "AbstractClientPlayerEntityMixin",
-    "BipedEntityModelMixin",
-    "InventoryScreenMixin"
+    "InventoryScreenMixin",
+    "PlayerEntityModelMixin",
+    "PlayerEntityRendererMixin",
+    "PlayerEntityRenderStateMixin"
   ]
 }

@@ -164,7 +164,7 @@ public class WallJumpLogic {
             Direction direction;
 
             for (Box axis : axes) {
-                direction = Direction.fromHorizontal(i++);
+                direction = Direction.fromHorizontalQuarterTurns(i++);
 
                 if (collidesWithBlock(entity.getWorld(), axis)) {
                     walls.add(direction);
@@ -272,6 +272,7 @@ public class WallJumpLogic {
 
     private static void playHitSound(Entity entity, BlockPos blockPos) {
         BlockState state = entity.getWorld().getBlockState(blockPos);
+
         if (!state.isAir()) {
             BlockSoundGroup soundGroup = state.getSoundGroup();
             entity.playSound(soundGroup.getHitSound(), soundGroup.getVolume() * 0.25F, soundGroup.getPitch());
@@ -285,7 +286,7 @@ public class WallJumpLogic {
             Vec3d pos = entity.getPos();
             Vector3f motion = getClingDirection(entity).getUnitVector();
 
-            world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, state), pos.x, pos.y, pos.z,
+            world.addParticleClient(new BlockStateParticleEffect(ParticleTypes.BLOCK, state), pos.x, pos.y, pos.z,
                     motion.x * -1.0D, -1.0D, motion.z * -1.0D);
         }
     }

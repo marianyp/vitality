@@ -1,7 +1,7 @@
 package dev.mariany.vitality.util;
 
+import dev.mariany.vitality.Vitality;
 import dev.mariany.vitality.attachment.ModAttachmentTypes;
-import dev.mariany.vitality.gamerule.VitalityGamerules;
 import dev.mariany.vitality.tag.VitalityTags;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -11,7 +11,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Difficulty;
@@ -30,14 +29,14 @@ public class VitalityUtils {
         return items;
     }
 
-    public static int getMaxDietRating(LivingEntity entity) {
-        return entity.getWorld().getGameRules().get(VitalityGamerules.HEALTHY_EATING_WINDOW).get();
+    public static int getMaxDietRating() {
+        return Vitality.CONFIG.healthyEatingWindow();
     }
 
     public static int getDietRating(LivingEntity entity) {
         List<Item> foodHistory = VitalityUtils.getFoodHistory(entity);
         int foodHistorySize = foodHistory.size();
-        int maxDietRating = getMaxDietRating(entity);
+        int maxDietRating = getMaxDietRating();
 
         if (entity.getWorld().getDifficulty().equals(Difficulty.PEACEFUL)) {
             return maxDietRating;
@@ -66,7 +65,7 @@ public class VitalityUtils {
         List<Item> foodHistory = VitalityUtils.getFoodHistory(player);
         foodHistory.addFirst(stack.getItem());
 
-        if (foodHistory.size() > getMaxDietRating(player)) {
+        if (foodHistory.size() > getMaxDietRating()) {
             foodHistory.removeLast();
         }
 
@@ -75,34 +74,26 @@ public class VitalityUtils {
                         .toList());
 
 
-        if (player.getWorld() instanceof ServerWorld world) {
-            boolean improveDietRegeneration = world.getGameRules().get(VitalityGamerules.IMPROVE_DIET_REGENERATION)
-                    .get();
-            if (improveDietRegeneration && !hasMovementBuffs && hasMovementBuffs(player)) {
-                player.addStatusEffect(
-                        new StatusEffectInstance(StatusEffects.REGENERATION, 20 * 5, 0, false, true, true));
-            }
+        if (Vitality.CONFIG.regenerationFromImprovedDiet() && !hasMovementBuffs && hasMovementBuffs(player)) {
+            player.addStatusEffect(new StatusEffectInstance(StatusEffects.REGENERATION, 20 * 5, 0, false, true, true));
         }
     }
 
     public static boolean hasMovementBuffs(PlayerEntity player) {
-        float ratio = (float) getDietRating(player) / getMaxDietRating(player);
-        return ratio >= VitalityConstants.MIN_BUFF_RATIO;
+        float ratio = (float) getDietRating(player) / getMaxDietRating();
+        return ratio >= VitalityConstants.MIN_BUFF_RATIO && player.canSprintAsVehicle();
     }
 
     public static boolean canWallJump(PlayerEntity player) {
-        return hasMovementBuffs(player) && player.getWorld().getGameRules().get(VitalityGamerules.ALLOW_WALL_JUMP)
-                .get();
+        return hasMovementBuffs(player) && Vitality.CONFIG.allowWallJump();
     }
 
     public static boolean canDoubleJump(PlayerEntity player) {
-        return hasMovementBuffs(player) && player.getWorld().getGameRules().get(VitalityGamerules.ALLOW_DOUBLE_JUMP)
-                .get();
+        return hasMovementBuffs(player) && Vitality.CONFIG.allowDoubleJump();
     }
 
     public static boolean canSoftLand(PlayerEntity player) {
-        return hasMovementBuffs(player) && player.getWorld().getGameRules().get(VitalityGamerules.ALLOW_SOFT_LAND)
-                .get();
+        return hasMovementBuffs(player) && Vitality.CONFIG.allowSoftLand();
     }
 
     public static Vec3d slerp(Vec3d a, Vec3d b, float t) {

@@ -26,6 +26,6 @@ public abstract class PlayerScreenHandlerMixin extends ScreenHandler implements 
 
     @Override
     public int vitality$getMaxScore() {
-        return VitalityUtils.getMaxDietRating(owner);
+        return VitalityUtils.getMaxDietRating();
     }
 }

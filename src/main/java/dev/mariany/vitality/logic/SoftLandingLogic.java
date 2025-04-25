@@ -19,7 +19,7 @@ public class SoftLandingLogic {
 
     private static boolean locked = false;
     private static boolean descending = false;
-    private static float previousFallDistance = 0;
+    private static double previousFallDistance = 0;
     private static Double previousExplosionY = null;
 
     @Nullable
@@ -71,13 +71,13 @@ public class SoftLandingLogic {
     }
 
     private static boolean isSoftLandNecessary(PlayerEntity player) {
-        double safeFallDistance = player.getAttributeValue(EntityAttributes.GENERIC_SAFE_FALL_DISTANCE);
+        double safeFallDistance = player.getAttributeValue(EntityAttributes.SAFE_FALL_DISTANCE);
 
         if (player.isInFluid()) {
             return false;
         }
 
-        float fallDistance = previousFallDistance;
+        double fallDistance = previousFallDistance;
 
         if (previousExplosionY != null) {
             double playerY = player.getY();
@@ -86,7 +86,7 @@ public class SoftLandingLogic {
                 return false;
             }
 
-            fallDistance = Math.min(fallDistance, (float) (previousExplosionY - playerY));
+            fallDistance = Math.min(fallDistance, previousExplosionY - playerY);
         }
 
         return fallDistance > safeFallDistance;

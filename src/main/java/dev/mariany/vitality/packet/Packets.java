@@ -16,8 +16,6 @@ public class Packets {
         registry.register(DoubleJumpedPacket.ID, DoubleJumpedPacket.CODEC);
         registry.register(ClingedPacket.ID, ClingedPacket.CODEC);
         registry.register(SoftLandedPacket.ID, SoftLandedPacket.CODEC);
-        registry.register(BooleanGameruleUpdatePacket.ID, BooleanGameruleUpdatePacket.CODEC);
-        registry.register(IntGameruleUpdatePacket.ID, IntGameruleUpdatePacket.CODEC);
     }
 
     private static void serverbound(PayloadTypeRegistry<RegistryByteBuf> registry) {
@@ -27,6 +25,5 @@ public class Packets {
         registry.register(TriggerSoftLandPacket.ID, TriggerSoftLandPacket.CODEC);
         registry.register(CompletedSoftLandPacket.ID, CompletedSoftLandPacket.CODEC);
         registry.register(RequestFoodHistorySync.ID, RequestFoodHistorySync.CODEC);
-        registry.register(RequestGamerulesSync.ID, RequestGamerulesSync.CODEC);
     }
 }

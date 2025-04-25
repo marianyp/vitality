@@ -10,6 +10,5 @@ public class ServerBoundPackets {
         ServerPlayNetworking.registerGlobalReceiver(TriggerSoftLandPacket.ID, TriggerSoftLandPacket::handle);
         ServerPlayNetworking.registerGlobalReceiver(CompletedSoftLandPacket.ID, CompletedSoftLandPacket::handle);
         ServerPlayNetworking.registerGlobalReceiver(RequestFoodHistorySync.ID, RequestFoodHistorySync::handle);
-        ServerPlayNetworking.registerGlobalReceiver(RequestGamerulesSync.ID, RequestGamerulesSync::handle);
     }
 }

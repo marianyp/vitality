@@ -34,7 +34,7 @@ public record ClingPacket(int wallClingTicks) implements CustomPayload {
         }
 
         if (player instanceof ClingingEntity clingingEntity) {
-            clingingEntity.vitality$updateWallClingedTicks(packet.wallClingTicks);
+            clingingEntity.vitality$updateWallClingedTicks(wallClingTicks);
         }
 
         if (player instanceof SoftLandingEntity softLandingEntity) {

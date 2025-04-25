@@ -3,7 +3,6 @@ package dev.mariany.vitality.client;
 import dev.mariany.vitality.event.client.ClientTickHandler;
 import dev.mariany.vitality.packet.clientbound.ClientBoundPackets;
 import dev.mariany.vitality.packet.serverbound.RequestFoodHistorySync;
-import dev.mariany.vitality.packet.serverbound.RequestGamerulesSync;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -24,6 +23,5 @@ public class VitalityClient implements ClientModInitializer {
 
     private static void onJoin(ClientPlayNetworkHandler handler, PacketSender sender, MinecraftClient client) {
         sender.sendPacket(new RequestFoodHistorySync());
-        sender.sendPacket(new RequestGamerulesSync());
     }
 }
