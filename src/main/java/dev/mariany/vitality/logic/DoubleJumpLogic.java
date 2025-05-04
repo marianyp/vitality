@@ -6,7 +6,6 @@ import dev.mariany.vitality.util.VitalityUtils;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.sound.SoundCategory;
 import net.minecraft.stat.Stats;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -101,10 +100,9 @@ public class DoubleJumpLogic {
             } else {
                 VitalityUtils.exhaust(player, 0.2F * exhaustMultiplier, 1.6F * exhaustMultiplier);
             }
-
-            world.playSound(null, player.getBlockPos(), VitalitySoundEvents.DOUBLE_JUMP, SoundCategory.PLAYERS, 0.215F,
-                    0.9F + player.getRandom().nextFloat() * 0.2F);
         }
+
+        player.playSound(VitalitySoundEvents.DOUBLE_JUMP, 0.215F, 0.9F + player.getRandom().nextFloat() * 0.2F);
 
         return forwardMotion;
     }

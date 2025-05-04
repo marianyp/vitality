@@ -85,15 +85,19 @@ public class VitalityUtils {
     }
 
     public static boolean canWallJump(PlayerEntity player) {
-        return hasMovementBuffs(player) && Vitality.CONFIG.allowWallJump();
+        return hasMovementBuffs(player) && Vitality.CONFIG.allowWallJump() && isHungerSatisfied(player);
     }
 
     public static boolean canDoubleJump(PlayerEntity player) {
-        return hasMovementBuffs(player) && Vitality.CONFIG.allowDoubleJump();
+        return hasMovementBuffs(player) && Vitality.CONFIG.allowDoubleJump() && isHungerSatisfied(player);
     }
 
     public static boolean canSoftLand(PlayerEntity player) {
-        return hasMovementBuffs(player) && Vitality.CONFIG.allowSoftLand();
+        return hasMovementBuffs(player) && Vitality.CONFIG.allowSoftLand() && isHungerSatisfied(player);
+    }
+
+    private static boolean isHungerSatisfied(PlayerEntity player) {
+        return player.getHungerManager().getFoodLevel() > 6F;
     }
 
     public static Vec3d slerp(Vec3d a, Vec3d b, float t) {
