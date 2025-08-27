@@ -1,9 +1,9 @@
 package dev.mariany.vitality;
 
-import dev.mariany.vitality.attachment.ModAttachmentTypes;
+import dev.mariany.vitality.attachment.VitalityAttachmentTypes;
 import dev.mariany.vitality.config.VitalityConfig;
 import dev.mariany.vitality.event.server.ServerTickHandler;
-import dev.mariany.vitality.packet.Packets;
+import dev.mariany.vitality.packet.VitalityPackets;
 import dev.mariany.vitality.packet.serverbound.ServerBoundPackets;
 import dev.mariany.vitality.sound.VitalitySoundEvents;
 import net.fabricmc.api.ModInitializer;
@@ -18,10 +18,10 @@ public class Vitality implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        Packets.register();
+        VitalityPackets.register();
         ServerBoundPackets.init();
 
-        ModAttachmentTypes.registerAttachmentTypes();
+        VitalityAttachmentTypes.registerAttachmentTypes();
         ServerTickHandler.register();
         VitalitySoundEvents.registerModSoundEvents();
     }

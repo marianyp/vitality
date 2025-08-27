@@ -1,7 +1,7 @@
 package dev.mariany.vitality.util;
 
 import dev.mariany.vitality.Vitality;
-import dev.mariany.vitality.attachment.ModAttachmentTypes;
+import dev.mariany.vitality.attachment.VitalityAttachmentTypes;
 import dev.mariany.vitality.tag.VitalityTags;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -21,8 +21,9 @@ import java.util.List;
 public class VitalityUtils {
     public static List<Item> getFoodHistory(LivingEntity entity) {
         List<Item> items = new LinkedList<>();
-        if (entity.hasAttached(ModAttachmentTypes.FOOD_HISTORY)) {
-            List<RegistryEntry<Item>> entries = entity.getAttachedOrElse(ModAttachmentTypes.FOOD_HISTORY,
+        if (entity.hasAttached(VitalityAttachmentTypes.FOOD_HISTORY)) {
+            List<RegistryEntry<Item>> entries = entity.getAttachedOrElse(
+                    VitalityAttachmentTypes.FOOD_HISTORY,
                     new LinkedList<>());
             items.addAll(entries.stream().map(RegistryEntry::value).toList());
         }
@@ -69,7 +70,8 @@ public class VitalityUtils {
             foodHistory.removeLast();
         }
 
-        player.setAttached(ModAttachmentTypes.FOOD_HISTORY,
+        player.setAttached(
+                VitalityAttachmentTypes.FOOD_HISTORY,
                 foodHistory.stream().map(Item::getRegistryEntry).map(reference -> (RegistryEntry<Item>) reference)
                         .toList());
 

@@ -9,7 +9,7 @@ import net.minecraft.registry.entry.RegistryEntry;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ModAttachmentTypes {
+public class VitalityAttachmentTypes {
     public static final AttachmentType<List<RegistryEntry<Item>>> FOOD_HISTORY = AttachmentRegistry.<List<RegistryEntry<Item>>>builder()
             .persistent(Item.ENTRY_CODEC.listOf()).initializer(LinkedList::new)
             .buildAndRegister(Vitality.id("food_history"));

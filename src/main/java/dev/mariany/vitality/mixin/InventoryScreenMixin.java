@@ -17,8 +17,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(InventoryScreen.class)
 public abstract class InventoryScreenMixin extends RecipeBookScreen<PlayerScreenHandler> implements VitalityScreen {
-    public InventoryScreenMixin(PlayerScreenHandler handler, RecipeBookWidget<?> recipeBook, PlayerInventory inventory,
-                                Text title) {
+    public InventoryScreenMixin(
+            PlayerScreenHandler handler,
+            RecipeBookWidget<?> recipeBook,
+            PlayerInventory inventory,
+            Text title
+    ) {
         super(handler, recipeBook, inventory, title);
     }
 

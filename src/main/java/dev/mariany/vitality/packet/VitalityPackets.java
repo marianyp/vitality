@@ -5,7 +5,7 @@ import dev.mariany.vitality.packet.serverbound.*;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.network.RegistryByteBuf;
 
-public class Packets {
+public class VitalityPackets {
     public static void register() {
         clientbound(PayloadTypeRegistry.playS2C());
         serverbound(PayloadTypeRegistry.playC2S());
@@ -14,7 +14,7 @@ public class Packets {
     private static void clientbound(PayloadTypeRegistry<RegistryByteBuf> registry) {
         registry.register(FoodHistorySyncPacket.ID, FoodHistorySyncPacket.CODEC);
         registry.register(DoubleJumpedPacket.ID, DoubleJumpedPacket.CODEC);
-        registry.register(ClingedPacket.ID, ClingedPacket.CODEC);
+        registry.register(ClungPacket.ID, ClungPacket.CODEC);
         registry.register(SoftLandedPacket.ID, SoftLandedPacket.CODEC);
     }
 

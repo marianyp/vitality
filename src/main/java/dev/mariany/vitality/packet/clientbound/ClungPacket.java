@@ -12,25 +12,27 @@ import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
 
-public record ClingedPacket(int entityId, int wallClingTicks) implements CustomPayload {
-    public static final Id<ClingedPacket> ID = new Id<>(Vitality.id("clinged"));
-    public static final PacketCodec<RegistryByteBuf, ClingedPacket> CODEC = PacketCodec.tuple(PacketCodecs.VAR_INT,
-            ClingedPacket::entityId, PacketCodecs.VAR_INT, ClingedPacket::wallClingTicks, ClingedPacket::new);
+public record ClungPacket(int entityId, boolean isClinging) implements CustomPayload {
+    public static final Id<ClungPacket> ID = new Id<>(Vitality.id("clung"));
+    public static final PacketCodec<RegistryByteBuf, ClungPacket> CODEC = PacketCodec.tuple(
+            PacketCodecs.VAR_INT, ClungPacket::entityId,
+            PacketCodecs.BOOLEAN, ClungPacket::isClinging,
+            ClungPacket::new
+    );
 
     @Override
     public Id<? extends CustomPayload> getId() {
         return ID;
     }
 
-    public static void handle(ClingedPacket packet, ClientPlayNetworking.Context context) {
+    public static void handle(ClungPacket packet, ClientPlayNetworking.Context context) {
         ClientPlayerEntity player = context.player();
         ClientWorld world = player.clientWorld;
-        int entityId = packet.entityId;
 
-        Entity entity = world.getEntityById(entityId);
+        Entity entity = world.getEntityById(packet.entityId);
 
         if (entity instanceof ClingingEntity clingingEntity) {
-            clingingEntity.vitality$updateWallClingedTicks(packet.wallClingTicks);
+            clingingEntity.vitality$setIsClinging(packet.isClinging);
         }
 
         if (entity instanceof SoftLandingEntity softLandingEntity) {

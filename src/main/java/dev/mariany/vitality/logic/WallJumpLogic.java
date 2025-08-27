@@ -23,11 +23,10 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 import java.util.*;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class WallJumpLogic {
-    private static int ticksWallClinged;
+    private static int ticksWallClung;
     private static int wallJumpCount;
     private static int ticksKeyDown;
     private static double clingX, clingZ;
@@ -39,8 +38,15 @@ public class WallJumpLogic {
         wallJumpCount = 0;
     }
 
-    public static void handleInput(PlayerEntity player, float forward, float sideways, boolean sneaking,
-                                   Consumer<PlayerEntity> onWallJump, BiConsumer<PlayerEntity, Integer> onCling) {
+    public static void handleInput(
+            PlayerEntity player,
+            float forward,
+            float sideways,
+            boolean sneaking,
+            Consumer<PlayerEntity> onWallJump,
+            Consumer<PlayerEntity> onCling,
+            Consumer<PlayerEntity> onClingEnd
+    ) {
         World world = player.getWorld();
         BlockPos blockPos = player.getBlockPos();
 
@@ -50,30 +56,40 @@ public class WallJumpLogic {
         FluidState fluidState = world.getFluidState(blockPos);
 
         if (onGround || flying || !fluidState.isEmpty() || isRiding) {
-            ticksWallClinged = 0;
+            if (ticksWallClung > 0) {
+                onClingEnd.accept(player);
+            }
+
+            ticksWallClung = 0;
             clingX = Double.NaN;
             clingZ = Double.NaN;
             staleWalls.clear();
             wallJumpCount = 0;
         } else if (VitalityUtils.canWallJump(player)) {
-            attemptWallJump(player, forward, sideways, sneaking, onWallJump, onCling);
+            attemptWallJump(player, forward, sideways, sneaking, onWallJump, onCling, onClingEnd);
         }
     }
 
-    private static void attemptWallJump(PlayerEntity player, float forward, float sideways, boolean sneaking,
-                                        Consumer<PlayerEntity> onWallJump, BiConsumer<PlayerEntity, Integer> onCling) {
+    private static void attemptWallJump(
+            PlayerEntity player,
+            float forward,
+            float sideways,
+            boolean sneaking,
+            Consumer<PlayerEntity> onWallJump,
+            Consumer<PlayerEntity> onCling,
+            Consumer<PlayerEntity> onClingEnd
+    ) {
         updateWallCollisions(player);
         ticksKeyDown = sneaking ? ticksKeyDown + 1 : 0;
 
         Set<Direction> walls = getWallDirections(player);
         BlockPos wallPos = getWallPos(player);
 
-        if (ticksWallClinged < 1) {
+        if (ticksWallClung < 1) {
             if (ticksKeyDown > 0 && ticksKeyDown < 4 && !walls.isEmpty() && canClingConsideringWalls(player)) {
-                ticksWallClinged = 1;
+                ticksWallClung = 1;
                 clingX = player.getX();
                 clingZ = player.getZ();
-
 
                 playHitSound(player, wallPos);
                 spawnWallParticle(player, wallPos);
@@ -87,26 +103,40 @@ public class WallJumpLogic {
 
             double motionY = player.getVelocity().y;
 
+            // Upward motion: clamp to 0 (stick to the wall)
             if (motionY > 0) {
-                motionY = 0;
-            } else if (motionY < -0.6) {
-                motionY = motionY + 0.2;
-                spawnWallParticle(player, wallPos);
-            } else if (ticksWallClinged++ > VitalityConstants.WALL_SLIDE_DELAY) {
-                motionY = -0.1;
-                spawnWallParticle(player, wallPos);
-            } else {
                 motionY = 0;
             }
 
-            onCling.accept(player, ticksWallClinged);
+            // Fast fall: soften (do NOT advance slide delay)
+            else if (motionY < VitalityConstants.FAST_FALL_THRESHOLD) {
+                motionY = motionY + VitalityConstants.FAST_FALL_DAMP;
+                spawnWallParticle(player, wallPos);
+            }
+
+            // We only advance the slide timer when the player’s vertical velocity is in the
+            // neutral zone (between -0.6 and 0). That means they’re holding position on the wall rather than
+            // bouncing up or dropping hard.
+            else {
+                boolean slideNow = (ticksWallClung > VitalityConstants.WALL_SLIDE_DELAY);
+                ticksWallClung++;
+
+                if (slideNow) {
+                    motionY = VitalityConstants.SLIDE_SPEED;
+                    spawnWallParticle(player, wallPos);
+                } else {
+                    motionY = 0; // Hold position during the delay
+                }
+            }
+
+            onCling.accept(player);
 
             player.setVelocity(0, motionY, 0);
             player.velocityDirty = true;
         } else {
-            if (ticksWallClinged != 0) {
-                onCling.accept(player, 0);
-                ticksWallClinged = 0;
+            if (ticksWallClung != 0) {
+                onClingEnd.accept(player);
+                ticksWallClung = 0;
             }
 
             if ((forward != 0 || sideways != 0) && !player.isOnGround() && !walls.isEmpty()) {
@@ -153,12 +183,18 @@ public class WallJumpLogic {
             boolean clinging = clingingEntity.vitality$isClinging();
 
             Vec3d pos = entity.getPos();
-            Box box = new Box(pos.x - 0.001, pos.y, pos.z - 0.001, pos.x + 0.001,
-                    pos.y + entity.getEyeHeight(entity.getPose()), pos.z + 0.001);
+            Box box = new Box(
+                    pos.x - 0.001, pos.y, pos.z - 0.001, pos.x + 0.001,
+                    pos.y + entity.getEyeHeight(entity.getPose()), pos.z + 0.001
+            );
 
             double dist = (entity.getWidth() / 2) + (clinging ? 0.1 : 0.06);
-            Box[] axes = {box.expand(0, 0, dist), box.expand(-dist, 0, 0), box.expand(0, 0, -dist), box.expand(dist, 0,
-                    0)};
+            Box[] axes = {
+                    box.expand(0, 0, dist), box.expand(-dist, 0, 0), box.expand(0, 0, -dist), box.expand(
+                    dist, 0,
+                    0
+            )
+            };
 
             int i = 0;
             Direction direction;
@@ -241,14 +277,14 @@ public class WallJumpLogic {
         float strafe = Math.signum(left) * up * up;
         float forward = Math.signum(foward) * up * up;
 
-        float f = (float) (1.0F / Math.sqrt(strafe * strafe + up * up + forward * forward));
-        strafe = strafe * f;
-        forward = forward * f;
+        float normalizationFactor = (float) (1.0F / Math.sqrt(strafe * strafe + up * up + forward * forward));
+        strafe = strafe * normalizationFactor;
+        forward = forward * normalizationFactor;
 
         float yaw = entity.getYaw();
 
-        float f1 = (float) (Math.sin(yaw * 0.017453292F) * 0.45F);
-        float f2 = (float) (Math.cos(yaw * 0.017453292F) * 0.45F);
+        float yawSinComponent = (float) (Math.sin(yaw * 0.017453292F) * 0.45F);
+        float yawCosComponent = (float) (Math.cos(yaw * 0.017453292F) * 0.45F);
 
         int jumpBoostLevel = 0;
 
@@ -259,14 +295,17 @@ public class WallJumpLogic {
         }
 
         Vec3d motion = entity.getVelocity();
-        entity.setVelocity(motion.x + (strafe * f2 - forward * f1), up + (jumpBoostLevel * 0.125),
-                motion.z + (forward * f2 + strafe * f1));
+        entity.setVelocity(
+                motion.x + (strafe * yawCosComponent - forward * yawSinComponent), up + (jumpBoostLevel * 0.125),
+                motion.z + (forward * yawCosComponent + strafe * yawSinComponent)
+        );
         entity.velocityDirty = true;
 
         BlockPos wallPos = getWallPos(entity);
 
         playHitSound(entity, wallPos);
         spawnWallParticle(entity, wallPos);
+
         wallJumpCount++;
     }
 
@@ -286,8 +325,10 @@ public class WallJumpLogic {
             Vec3d pos = entity.getPos();
             Vector3f motion = getClingDirection(entity).getUnitVector();
 
-            world.addParticleClient(new BlockStateParticleEffect(ParticleTypes.BLOCK, state), pos.x, pos.y, pos.z,
-                    motion.x * -1.0D, -1.0D, motion.z * -1.0D);
+            world.addParticleClient(
+                    new BlockStateParticleEffect(ParticleTypes.BLOCK, state), pos.x, pos.y, pos.z,
+                    motion.x * -1.0D, -1.0D, motion.z * -1.0D
+            );
         }
     }
 }

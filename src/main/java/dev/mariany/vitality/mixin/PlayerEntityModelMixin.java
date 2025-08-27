@@ -11,8 +11,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-// clingingEntity.vitality$isClinging() && WallJumpLogic.canCling(player)
-
 @Mixin(PlayerEntityModel.class)
 public class PlayerEntityModelMixin extends BipedEntityModel<PlayerEntityRenderState> {
 
@@ -20,12 +18,22 @@ public class PlayerEntityModelMixin extends BipedEntityModel<PlayerEntityRenderS
         super(modelPart);
     }
 
-    @Inject(method = "setAngles(Lnet/minecraft/client/render/entity/state/PlayerEntityRenderState;)V", at = @At(value = "TAIL"))
+    @Inject(
+            method = "setAngles(Lnet/minecraft/client/render/entity/state/PlayerEntityRenderState;)V",
+            at = @At(value = "TAIL")
+    )
     private void injectSetAngles(PlayerEntityRenderState playerEntityRenderState, CallbackInfo ci) {
-        ClingingPlayerEntityRenderState clingingPlayerEntityRenderState = (ClingingPlayerEntityRenderState) playerEntityRenderState;
+        ClingingPlayerEntityRenderState clingingPlayerEntityRenderState =
+                (ClingingPlayerEntityRenderState) playerEntityRenderState;
+
         if (clingingPlayerEntityRenderState.vitality$isClinging()) {
-            ArmPosing.meleeAttack(this.leftArm, rightArm, playerEntityRenderState.mainArm,
-                    playerEntityRenderState.handSwingProgress, playerEntityRenderState.age);
+            ArmPosing.zombieArms(
+                    this.leftArm,
+                    this.rightArm,
+                    true,
+                    playerEntityRenderState.handSwingProgress,
+                    playerEntityRenderState.age
+            );
         }
     }
 }

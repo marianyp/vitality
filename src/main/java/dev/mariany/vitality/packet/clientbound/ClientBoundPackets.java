@@ -6,7 +6,7 @@ public class ClientBoundPackets {
     public static void init() {
         ClientPlayNetworking.registerGlobalReceiver(FoodHistorySyncPacket.ID, FoodHistorySyncPacket::handle);
         ClientPlayNetworking.registerGlobalReceiver(DoubleJumpedPacket.ID, DoubleJumpedPacket::handle);
-        ClientPlayNetworking.registerGlobalReceiver(ClingedPacket.ID, ClingedPacket::handle);
+        ClientPlayNetworking.registerGlobalReceiver(ClungPacket.ID, ClungPacket::handle);
         ClientPlayNetworking.registerGlobalReceiver(SoftLandedPacket.ID, SoftLandedPacket::handle);
     }
 }

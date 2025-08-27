@@ -27,6 +27,7 @@ public class ClientTickHandler {
 
     private static void onClientTick(MinecraftClient instance) {
         ClientPlayerEntity player = instance.player;
+
         if (player != null && player.input != null) {
             handleWallJump(player);
             handleSoftLanding(player);
@@ -36,25 +37,43 @@ public class ClientTickHandler {
 
     private static void handleWallJump(ClientPlayerEntity clientPlayer) {
         Consumer<PlayerEntity> onWallJump = (player) -> {
-            player.fallDistance = 0;
+            resetFallDistance(player);
             ClientPlayNetworking.send(new WallJumpPacket());
         };
 
-        BiConsumer<PlayerEntity, Integer> onCling = (player, ticks) -> {
-            if (ticks > 0) {
-                player.fallDistance = 0;
-            }
+        Consumer<PlayerEntity> onCling = (player) -> {
             if (player instanceof ClingingEntity clingingEntity) {
-                clingingEntity.vitality$updateWallClingedTicks(ticks);
+                if (!clingingEntity.vitality$isClinging()) {
+                    clingingEntity.vitality$setIsClinging(true);
+                    ClientPlayNetworking.send(new ClingPacket(true));
+                }
             }
+
             if (player instanceof SoftLandingEntity softLandingEntity) {
                 softLandingEntity.vitality$setWillSoftLand(false);
             }
-            ClientPlayNetworking.send(new ClingPacket(ticks));
         };
 
-        WallJumpLogic.handleInput(clientPlayer, clientPlayer.input.getMovementInput().y,
-                clientPlayer.input.getMovementInput().x, clientPlayer.input.playerInput.sneak(), onWallJump, onCling);
+        Consumer<PlayerEntity> onClingEnd = (player) -> {
+            if (player instanceof ClingingEntity clingingEntity) {
+                clingingEntity.vitality$setIsClinging(false);
+                ClientPlayNetworking.send(new ClingPacket(false));
+            }
+        };
+
+        WallJumpLogic.handleInput(
+                clientPlayer,
+                clientPlayer.input.getMovementInput().y,
+                clientPlayer.input.getMovementInput().x,
+                clientPlayer.input.playerInput.sneak(),
+                onWallJump,
+                onCling,
+                onClingEnd
+        );
+    }
+
+    private static void resetFallDistance(PlayerEntity player) {
+        player.fallDistance = 0;
     }
 
     private static void handleDoubleJump(ClientPlayerEntity player) {
@@ -72,12 +91,16 @@ public class ClientTickHandler {
             ClientPlayNetworking.send(new TriggerSoftLandPacket()); // Update willSoftLand state on server
         };
 
-        Vec3d direction = SoftLandingLogic.handleInput(clientPlayer, clientPlayer.input.playerInput.jump(),
-                clientPlayer.input.getMovementInput().y, clientPlayer.input.getMovementInput().x, onTriggerSoftLand);
+        Vec3d direction = SoftLandingLogic.handleInput(
+                clientPlayer, clientPlayer.input.playerInput.jump(),
+                clientPlayer.input.getMovementInput().y, clientPlayer.input.getMovementInput().x, onTriggerSoftLand
+        );
 
         if (direction != null) {
-            ClientPlayNetworking.send(new CompletedSoftLandPacket(direction.x, direction.y,
-                    direction.z)); // Display animation to other players on server
+            ClientPlayNetworking.send(new CompletedSoftLandPacket(
+                    direction.x, direction.y,
+                    direction.z
+            )); // Display animation to other players on server
             playVisuals(clientPlayer, direction, 1 + (SoftLandingLogic.DISTANCE / 2));
         }
     }

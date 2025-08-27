@@ -23,8 +23,13 @@ public class SoftLandingLogic {
     private static Double previousExplosionY = null;
 
     @Nullable
-    public static Vec3d handleInput(PlayerEntity player, boolean jumping, float forward, float sideways,
-                                    Consumer<PlayerEntity> onTriggerSoftLand) {
+    public static Vec3d handleInput(
+            PlayerEntity player,
+            boolean jumping,
+            float forward,
+            float sideways,
+            Consumer<PlayerEntity> onTriggerSoftLand
+    ) {
         if (player instanceof SoftLandingEntity softLandingEntity) {
             boolean willSoftLand = softLandingEntity.vitality$willSoftLand();
             boolean onGround = player.isOnGround();

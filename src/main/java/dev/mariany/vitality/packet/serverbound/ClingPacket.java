@@ -3,21 +3,21 @@ package dev.mariany.vitality.packet.serverbound;
 import dev.mariany.vitality.Vitality;
 import dev.mariany.vitality.entity.ClingingEntity;
 import dev.mariany.vitality.entity.SoftLandingEntity;
-import dev.mariany.vitality.packet.clientbound.ClingedPacket;
+import dev.mariany.vitality.packet.clientbound.ClungPacket;
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.network.listener.ClientCommonPacketListener;
 import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.network.packet.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 
-public record ClingPacket(int wallClingTicks) implements CustomPayload {
+public record ClingPacket(boolean isClinging) implements CustomPayload {
     public static final Id<ClingPacket> ID = new Id<>(Vitality.id("cling"));
-    public static final PacketCodec<RegistryByteBuf, ClingPacket> CODEC = PacketCodec.tuple(PacketCodecs.INTEGER,
-            ClingPacket::wallClingTicks, ClingPacket::new);
+    public static final PacketCodec<RegistryByteBuf, ClingPacket> CODEC = PacketCodec.tuple(
+            PacketCodecs.BOOLEAN, ClingPacket::isClinging,
+            ClingPacket::new
+    );
 
     @Override
     public Id<? extends CustomPayload> getId() {
@@ -26,24 +26,21 @@ public record ClingPacket(int wallClingTicks) implements CustomPayload {
 
     public static void handle(ClingPacket packet, ServerPlayNetworking.Context context) {
         ServerPlayerEntity player = context.player();
-        ServerWorld world = player.getServerWorld();
-        int wallClingTicks = packet.wallClingTicks;
 
-        if (wallClingTicks > 0) {
-            player.fallDistance = 0;
-        }
+        boolean isClinging = packet.isClinging;
 
         if (player instanceof ClingingEntity clingingEntity) {
-            clingingEntity.vitality$updateWallClingedTicks(wallClingTicks);
+            clingingEntity.vitality$setIsClinging(isClinging);
         }
 
         if (player instanceof SoftLandingEntity softLandingEntity) {
             softLandingEntity.vitality$setWillSoftLand(false);
         }
 
-        Packet<ClientCommonPacketListener> clingedPacket = ServerPlayNetworking.createS2CPacket(
-                new ClingedPacket(player.getId(), wallClingTicks));
-
-        world.getChunkManager().sendToOtherNearbyPlayers(player, clingedPacket);
+        for (ServerPlayerEntity otherPlayer : PlayerLookup.tracking(player)) {
+            if (!otherPlayer.equals(player)) {
+                ServerPlayNetworking.send(otherPlayer, new ClungPacket(player.getId(), isClinging));
+            }
+        }
     }
 }

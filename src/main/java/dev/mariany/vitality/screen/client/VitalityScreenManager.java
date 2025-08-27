@@ -6,6 +6,7 @@ import dev.mariany.vitality.util.VitalityConstants;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
@@ -53,8 +54,10 @@ public class VitalityScreenManager {
         }
 
         if (isHovered(mouseX, mouseY)) {
-            context.drawTooltip(textRenderer, Text.translatable("gui.inventory.vitality.diet", tooltipText), mouseX,
-                    mouseY);
+            context.drawTooltip(
+                    textRenderer, Text.translatable("gui.inventory.vitality.diet", tooltipText), mouseX,
+                    mouseY
+            );
         }
     }
 
@@ -70,8 +73,14 @@ public class VitalityScreenManager {
         int xOffset = TOP_LEFT[0];
         int yOffset = TOP_LEFT[1];
 
-        context.drawGuiTexture(RenderLayer::getGuiTextured, DIET_EMPTY, x + xOffset, y + yOffset, SPRITE_WIDTH,
-                SPRITE_HEIGHT);
+        context.drawGuiTexture(
+                RenderPipelines.GUI_TEXTURED,
+                DIET_EMPTY,
+                x + xOffset,
+                y + yOffset,
+                SPRITE_WIDTH,
+                SPRITE_HEIGHT
+        );
 
         if (score > 0) {
             int revealedHeight;
@@ -86,9 +95,18 @@ public class VitalityScreenManager {
                 revealedHeight = STEP_HEIGHT * steps;
             }
 
-            context.drawGuiTexture(RenderLayer::getGuiTextured, DIET, SPRITE_WIDTH, FILLED_SPRITE_HEIGHT, 0,
-                    FILLED_SPRITE_HEIGHT - revealedHeight, x + xOffset,
-                    (y + yOffset + 1) + (FILLED_SPRITE_HEIGHT - revealedHeight), SPRITE_WIDTH, revealedHeight);
+            context.drawGuiTexture(
+                    RenderPipelines.GUI_TEXTURED,
+                    DIET,
+                    SPRITE_WIDTH,
+                    FILLED_SPRITE_HEIGHT,
+                    0,
+                    FILLED_SPRITE_HEIGHT - revealedHeight,
+                    x + xOffset,
+                    (y + yOffset + 1) + (FILLED_SPRITE_HEIGHT - revealedHeight),
+                    SPRITE_WIDTH,
+                    revealedHeight
+            );
         }
     }
 

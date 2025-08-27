@@ -15,8 +15,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(FoodComponent.class)
 public class FoodComponentMixin {
     @Inject(method = "onConsume", at = @At(value = "HEAD"))
-    public void injectOnConsume(World world, LivingEntity entity, ItemStack stack, ConsumableComponent consumable,
-                                CallbackInfo ci) {
+    public void injectOnConsume(
+            World world,
+            LivingEntity entity,
+            ItemStack stack,
+            ConsumableComponent consumable,
+            CallbackInfo ci
+    ) {
         if (entity instanceof PlayerEntity player) {
             VitalityUtils.addToFoodHistory(player, stack);
         }

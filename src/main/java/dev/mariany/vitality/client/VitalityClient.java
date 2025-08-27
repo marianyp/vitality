@@ -18,7 +18,7 @@ public class VitalityClient implements ClientModInitializer {
         ClientBoundPackets.init();
         ClientPlayConnectionEvents.JOIN.register(VitalityClient::onJoin);
         ClientTickHandler.register();
-        Tooltips.register();
+        VitalityTooltips.register();
     }
 
     private static void onJoin(ClientPlayNetworkHandler handler, PacketSender sender, MinecraftClient client) {

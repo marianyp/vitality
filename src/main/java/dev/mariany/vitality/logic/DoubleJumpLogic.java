@@ -43,12 +43,14 @@ public class DoubleJumpLogic {
             canDoubleJump = true;
         } else if (!jumping) {
             hasReleasedJumpKey = true;
-        } else if (!player.getAbilities().flying && canDoubleJump && hasReleasedJumpKey && !player.isSubmergedInWater() && !player.isClimbing() && !player.isCreative()) {
+        } else if (!player.getAbilities().flying && canDoubleJump && hasReleasedJumpKey &&
+                !player.isSubmergedInWater() && !player.isClimbing() && !player.isCreative()) {
             canDoubleJump = false;
             if (VitalityUtils.canDoubleJump(player)) {
                 return doubleJump(player);
             }
         }
+
         return null;
     }
 

@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.10-SNAPSHOT'
+    id 'fabric-loom' version "${loom_version}"
     id 'maven-publish'
 }
 
@@ -34,31 +34,36 @@ fabricApi {
 }
 
 dependencies {
-    // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
+    // Player Animator
     include modImplementation("dev.kosmx.player-anim:player-animation-lib-fabric:${project.player_anim_version}")
 
+    // Mod Menu
     modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
 
+    // owo-lib
     annotationProcessor modImplementation("io.wispforest:owo-lib:${project.owo_version}")
     include "io.wispforest:owo-sentinel:${project.owo_version}"
 }
 
 processResources {
-    inputs.property "version", project.version
+    var expandProps = [
+            minecraft_version        : minecraft_version,
+            mod_id                   : mod_id, mod_name: mod_name, mod_version: mod_version,
+            mod_authors              : mod_authors, mod_description: mod_description,
+            mod_page_url             : mod_page_url, mod_git_url: mod_git_url,
+            mod_license              : mod_license
+    ]
 
     filesMatching("fabric.mod.json") {
-        expand "version": project.version
+        expand expandProps
     }
-}
 
-tasks.withType(JavaCompile).configureEach {
-    it.options.release = 21
+    inputs.properties(expandProps)
 }
 
 java {
@@ -69,19 +74,9 @@ java {
 }
 
 jar {
+    inputs.property "archivesName", project.base.archivesName
+
     from("LICENSE") {
-        rename { "${it}_${project.base.archivesName.get()}" }
-    }
-}
-
-publishing {
-    publications {
-        create("mavenJava", MavenPublication) {
-            artifactId = project.archives_base_name
-            from components.java
-        }
-    }
-
-    repositories {
+        rename { "${it}_${inputs.properties.archivesName}" }
     }
 }

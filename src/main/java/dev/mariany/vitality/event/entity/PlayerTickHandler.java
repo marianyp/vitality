@@ -17,7 +17,16 @@ public class PlayerTickHandler {
 
     private static void onPlayerTick(ServerPlayerEntity player) {
         if (VitalityUtils.getDietRating(player) <= 0) {
-            player.addStatusEffect(new StatusEffectInstance(StatusEffects.WEAKNESS, 20 * 10, 0, false, true, true));
+            player.addStatusEffect(
+                    new StatusEffectInstance(
+                            StatusEffects.WEAKNESS,
+                            20 * 10,
+                            0,
+                            false,
+                            true,
+                            true
+                    )
+            );
         }
     }
 }

@@ -1,7 +1,7 @@
 package dev.mariany.vitality.packet.clientbound;
 
 import dev.mariany.vitality.Vitality;
-import dev.mariany.vitality.attachment.ModAttachmentTypes;
+import dev.mariany.vitality.attachment.VitalityAttachmentTypes;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.item.Item;
 import net.minecraft.network.RegistryByteBuf;
@@ -26,6 +26,6 @@ public record FoodHistorySyncPacket(List<RegistryEntry<Item>> foodHistory) imple
     }
 
     public static void handle(FoodHistorySyncPacket packet, ClientPlayNetworking.Context context) {
-        context.player().setAttached(ModAttachmentTypes.FOOD_HISTORY, packet.foodHistory());
+        context.player().setAttached(VitalityAttachmentTypes.FOOD_HISTORY, packet.foodHistory());
     }
 }

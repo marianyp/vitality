@@ -33,8 +33,8 @@ import java.util.Optional;
 
 @Mixin(AbstractClientPlayerEntity.class)
 public abstract class AbstractClientPlayerEntityMixin extends PlayerEntity implements AnimatablePlayer {
-    public AbstractClientPlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile gameProfile) {
-        super(world, pos, yaw, gameProfile);
+    public AbstractClientPlayerEntityMixin(World world, GameProfile gameProfile) {
+        super(world, gameProfile);
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))
@@ -77,8 +77,10 @@ public abstract class AbstractClientPlayerEntityMixin extends PlayerEntity imple
 
         speedModifier.speed = length / (VitalityConstants.ROLL_DURATION * speedMultiplier);
 
-        base.replaceAnimationWithFade(AbstractFadeModifier.standardFadeIn(fadeIn, Ease.INOUTELASTIC),
-                new KeyframeAnimationPlayer(copy.build(), 0));
+        base.replaceAnimationWithFade(
+                AbstractFadeModifier.standardFadeIn(fadeIn, Ease.INOUTELASTIC),
+                new KeyframeAnimationPlayer(copy.build(), 0)
+        );
     }
 
     @Unique
@@ -101,8 +103,10 @@ public abstract class AbstractClientPlayerEntityMixin extends PlayerEntity imple
 
                         Vec3d planeNormal = initialOrientation.crossProduct(targetOrientation).normalize();
 
-                        float horizontalAngle = (float) VitalityUtils.angleWithSignBetween(initialOrientation,
-                                currentOrientation, planeNormal);
+                        float horizontalAngle = (float) VitalityUtils.angleWithSignBetween(
+                                initialOrientation,
+                                currentOrientation, planeNormal
+                        );
                         float xRot = (float) Math.toRadians(horizontalAngle);
 
                         AdjustmentModifier.PartModifier modifier = new AdjustmentModifier.PartModifier(
