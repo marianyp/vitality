@@ -24,7 +24,8 @@ public class VitalityUtils {
         if (entity.hasAttached(VitalityAttachmentTypes.FOOD_HISTORY)) {
             List<RegistryEntry<Item>> entries = entity.getAttachedOrElse(
                     VitalityAttachmentTypes.FOOD_HISTORY,
-                    new LinkedList<>());
+                    new LinkedList<>()
+            );
             items.addAll(entries.stream().map(RegistryEntry::value).toList());
         }
         return items;
@@ -73,7 +74,8 @@ public class VitalityUtils {
         player.setAttached(
                 VitalityAttachmentTypes.FOOD_HISTORY,
                 foodHistory.stream().map(Item::getRegistryEntry).map(reference -> (RegistryEntry<Item>) reference)
-                        .toList());
+                        .toList()
+        );
 
 
         if (Vitality.CONFIG.regenerationFromImprovedDiet() && !hasMovementBuffs && hasMovementBuffs(player)) {
@@ -87,19 +89,63 @@ public class VitalityUtils {
     }
 
     public static boolean canWallJump(PlayerEntity player) {
-        return hasMovementBuffs(player) && Vitality.CONFIG.allowWallJump() && isHungerSatisfied(player);
+        return hasMovementBuffs(player) && Vitality.CONFIG.allowWallJump() && areGeneralConditionsMet(player);
     }
 
     public static boolean canDoubleJump(PlayerEntity player) {
-        return hasMovementBuffs(player) && Vitality.CONFIG.allowDoubleJump() && isHungerSatisfied(player);
+        return hasMovementBuffs(player) && Vitality.CONFIG.allowDoubleJump() && areGeneralConditionsMet(player);
     }
 
     public static boolean canSoftLand(PlayerEntity player) {
-        return hasMovementBuffs(player) && Vitality.CONFIG.allowSoftLand() && isHungerSatisfied(player);
+        return hasMovementBuffs(player) && Vitality.CONFIG.allowSoftLand() && areGeneralConditionsMet(player);
     }
 
     private static boolean isHungerSatisfied(PlayerEntity player) {
         return player.getHungerManager().getFoodLevel() > 6F;
+    }
+
+    private static boolean areGeneralConditionsMet(PlayerEntity player) {
+        if (player.isSpectator()) {
+            return false;
+        }
+
+        if (player.hasVehicle()) {
+            return false;
+        }
+
+        if (player.isInFluid()) {
+            return false;
+        }
+
+        if (player.inPowderSnow) {
+            return false;
+        }
+
+        if (player.isCrawling()) {
+            return false;
+        }
+
+        if (player.isGliding()) {
+            return false;
+        }
+
+        if (player.getAbilities().flying) {
+            return false;
+        }
+
+        if (player.isUsingRiptide()) {
+            return false;
+        }
+
+        if (player.isClimbing()) {
+            return false;
+        }
+
+        if (player.hasStatusEffect(StatusEffects.LEVITATION)) {
+            return false;
+        }
+
+        return isHungerSatisfied(player);
     }
 
     public static Vec3d slerp(Vec3d a, Vec3d b, float t) {
