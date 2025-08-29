@@ -7,6 +7,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.HungerManager;
+import net.minecraft.entity.player.PlayerAbilities;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -105,6 +106,12 @@ public class VitalityUtils {
     }
 
     private static boolean areGeneralConditionsMet(PlayerEntity player) {
+        PlayerAbilities abilities = player.getAbilities();
+
+        if (abilities.flying || abilities.allowFlying) {
+            return false;
+        }
+
         if (player.isSpectator()) {
             return false;
         }
@@ -126,10 +133,6 @@ public class VitalityUtils {
         }
 
         if (player.isGliding()) {
-            return false;
-        }
-
-        if (player.getAbilities().flying) {
             return false;
         }
 
