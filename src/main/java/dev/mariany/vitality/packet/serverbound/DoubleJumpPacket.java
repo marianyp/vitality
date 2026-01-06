@@ -27,7 +27,7 @@ public record DoubleJumpPacket() implements CustomPayload {
 
     public static void handle(DoubleJumpPacket packet, ServerPlayNetworking.Context context) {
         ServerPlayerEntity player = context.player();
-        ServerWorld world = player.getWorld();
+        ServerWorld world = player.getEntityWorld();
 
         if (VitalityUtils.canDoubleJump(player)) {
             Vec3d movement = DoubleJumpLogic.doubleJump(player);
@@ -38,6 +38,7 @@ public record DoubleJumpPacket() implements CustomPayload {
                 double motionZ = player.getRandom().nextGaussian() * 0.02;
 
                 ParticleEffect particleType = player.isSubmergedInWater() ? ParticleTypes.BUBBLE : ParticleTypes.POOF;
+
                 world.spawnParticles(
                         particleType,
                         player.getX(),

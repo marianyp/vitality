@@ -7,6 +7,7 @@ import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.PlayerLikeEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
@@ -47,7 +48,7 @@ public class WallJumpLogic {
             Consumer<PlayerEntity> onCling,
             Consumer<PlayerEntity> onClingEnd
     ) {
-        World world = player.getWorld();
+        World world = player.getEntityWorld();
         BlockPos blockPos = player.getBlockPos();
 
         boolean onGround = player.isOnGround();
@@ -150,12 +151,12 @@ public class WallJumpLogic {
         }
     }
 
-    public static boolean canCling(PlayerEntity player) {
+    public static boolean canCling(PlayerLikeEntity player) {
         return canCling(player, player.isSneaking());
     }
 
-    private static boolean canCling(PlayerEntity player, boolean sneaking) {
-        World world = player.getWorld();
+    private static boolean canCling(PlayerLikeEntity player, boolean sneaking) {
+        World world = player.getEntityWorld();
         BlockPos blockPos = player.getBlockPos();
         FluidState fluidState = world.getFluidState(blockPos);
         return sneaking && !player.isOnGround() && fluidState.isEmpty() && !getWallDirections(player).isEmpty();
@@ -166,7 +167,7 @@ public class WallJumpLogic {
             return false;
         }
 
-        if (collidesWithBlock(player.getWorld(), player.getBoundingBox().offset(0, -0.8, 0))) {
+        if (collidesWithBlock(player.getEntityWorld(), player.getBoundingBox().offset(0, -0.8, 0))) {
             return false;
         }
 
@@ -182,7 +183,7 @@ public class WallJumpLogic {
         if (entity instanceof ClingingEntity clingingEntity) {
             boolean clinging = clingingEntity.vitality$isClinging();
 
-            Vec3d pos = entity.getPos();
+            Vec3d pos = entity.getEntityPos();
             Box box = new Box(
                     pos.x - 0.001, pos.y, pos.z - 0.001, pos.x + 0.001,
                     pos.y + entity.getEyeHeight(entity.getPose()), pos.z + 0.001
@@ -202,7 +203,7 @@ public class WallJumpLogic {
             for (Box axis : axes) {
                 direction = Direction.fromHorizontalQuarterTurns(i++);
 
-                if (collidesWithBlock(entity.getWorld(), axis)) {
+                if (collidesWithBlock(entity.getEntityWorld(), axis)) {
                     walls.add(direction);
                 }
             }
@@ -246,7 +247,7 @@ public class WallJumpLogic {
             Direction direction = entry.getKey();
             BlockPos pos = entry.getValue();
 
-            double distanceSquared = entity.getPos().squaredDistanceTo(pos.toCenterPos());
+            double distanceSquared = entity.getEntityPos().squaredDistanceTo(pos.toCenterPos());
 
             if (distanceSquared < closestDistance) {
                 closestDistance = distanceSquared;
@@ -259,7 +260,7 @@ public class WallJumpLogic {
     }
 
     private static BlockPos getWallPos(Entity entity) {
-        World world = entity.getWorld();
+        World world = entity.getEntityWorld();
         Vec3d eyePos = entity.getEyePos();
         BlockPos blockPos = BlockPos.ofFloored(eyePos).offset(getClingDirection(entity));
 
@@ -310,7 +311,7 @@ public class WallJumpLogic {
     }
 
     private static void playHitSound(Entity entity, BlockPos blockPos) {
-        BlockState state = entity.getWorld().getBlockState(blockPos);
+        BlockState state = entity.getEntityWorld().getBlockState(blockPos);
 
         if (!state.isAir()) {
             BlockSoundGroup soundGroup = state.getSoundGroup();
@@ -319,10 +320,11 @@ public class WallJumpLogic {
     }
 
     private static void spawnWallParticle(Entity entity, BlockPos blockPos) {
-        World world = entity.getWorld();
+        World world = entity.getEntityWorld();
         BlockState state = world.getBlockState(blockPos);
+
         if (state.getRenderType() != BlockRenderType.INVISIBLE) {
-            Vec3d pos = entity.getPos();
+            Vec3d pos = entity.getEntityPos();
             Vector3f motion = getClingDirection(entity).getUnitVector();
 
             world.addParticleClient(

@@ -12,8 +12,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Difficulty;
 
 import java.util.LinkedList;
@@ -41,7 +39,7 @@ public class VitalityUtils {
         int foodHistorySize = foodHistory.size();
         int maxDietRating = getMaxDietRating();
 
-        if (entity.getWorld().getDifficulty().equals(Difficulty.PEACEFUL)) {
+        if (entity.getEntityWorld().getDifficulty().equals(Difficulty.PEACEFUL)) {
             return maxDietRating;
         }
 
@@ -149,29 +147,6 @@ public class VitalityUtils {
         }
 
         return isHungerSatisfied(player);
-    }
-
-    public static Vec3d slerp(Vec3d a, Vec3d b, float t) {
-        a = a.normalize();
-        b = b.normalize();
-
-        double dot = MathHelper.clamp(a.dotProduct(b), -1.0, 1.0);
-        double theta = Math.acos(dot) * t;
-
-        Vec3d relativeVec = b.subtract(a.multiply(dot)).normalize();
-        return a.multiply(Math.cos(theta)).add(relativeVec.multiply(Math.sin(theta)));
-    }
-
-    public static double angleWithSignBetween(Vec3d a, Vec3d b, Vec3d planeNormal) {
-        a = a.normalize();
-        b = b.normalize();
-
-        double cosineTheta = MathHelper.clamp(a.dotProduct(b), -1, 1);
-        double angle = Math.toDegrees(Math.acos(cosineTheta));
-        Vec3d cross = a.crossProduct(b);
-        double sign = cross.dotProduct(planeNormal);
-
-        return angle * Math.signum(sign);
     }
 
     public static void exhaust(PlayerEntity player, float min, float max) {

@@ -26,10 +26,11 @@ public record CompletedSoftLandPacket(double x, double y, double z) implements C
 
     public static void handle(CompletedSoftLandPacket packet, ServerPlayNetworking.Context context) {
         ServerPlayerEntity player = context.player();
-        ServerWorld world = player.getWorld();
+        ServerWorld world = player.getEntityWorld();
 
         Packet<ClientCommonPacketListener> softLandedPacket = ServerPlayNetworking.createS2CPacket(
-                new SoftLandedPacket(player.getId(), packet.x, packet.y, packet.z));
+                new SoftLandedPacket(player.getId(), packet.x, packet.y, packet.z)
+        );
 
         world.getChunkManager().sendToOtherNearbyPlayers(player, softLandedPacket);
 

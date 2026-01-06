@@ -5,12 +5,12 @@ import dev.mariany.vitality.entity.ClingingEntity;
 import dev.mariany.vitality.entity.SoftLandingEntity;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.world.World;
 
 public record ClungPacket(int entityId, boolean isClinging) implements CustomPayload {
     public static final Id<ClungPacket> ID = new Id<>(Vitality.id("clung"));
@@ -27,7 +27,7 @@ public record ClungPacket(int entityId, boolean isClinging) implements CustomPay
 
     public static void handle(ClungPacket packet, ClientPlayNetworking.Context context) {
         ClientPlayerEntity player = context.player();
-        ClientWorld world = player.clientWorld;
+        World world = player.getEntityWorld();
 
         Entity entity = world.getEntityById(packet.entityId);
 

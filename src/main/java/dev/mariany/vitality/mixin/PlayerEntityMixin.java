@@ -65,7 +65,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements Clinging
             method = "handleFallDamage",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/entity/LivingEntity;handleFallDamage(DFLnet/minecraft/entity/damage/DamageSource;)Z"
+                    target = "Lnet/minecraft/entity/PlayerLikeEntity;handleFallDamage(DFLnet/minecraft/entity/damage/DamageSource;)Z"
             )
     )
     public boolean injectHandleFallDamage(
@@ -75,10 +75,10 @@ public abstract class PlayerEntityMixin extends LivingEntity implements Clinging
             DamageSource damageSource,
             Operation<Boolean> original
     ) {
-        World world = player.getWorld();
+        World world = player.getEntityWorld();
 
         if (willSoftLand) {
-            if (!world.isClient) {
+            if (!world.isClient()) {
                 willSoftLand = false; // Client will reset this value after animation plays
             }
 
@@ -97,7 +97,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements Clinging
             at = @At(
                     value = "INVOKE",
                     shift = At.Shift.AFTER,
-                    target = "Lnet/minecraft/entity/LivingEntity;tick()V"
+                    target = "Lnet/minecraft/entity/PlayerLikeEntity;tick()V"
             )
     )
     protected void injectTick(CallbackInfo ci) {

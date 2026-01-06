@@ -55,13 +55,13 @@ public class DoubleJumpLogic {
     }
 
     public static Vec3d doubleJump(PlayerEntity player) {
-        World world = player.getWorld();
+        World world = player.getEntityWorld();
         boolean sneaking = player.isSneaking();
         float exhaustMultiplier = 1F;
 
         player.fallDistance = 0;
         player.setIgnoreFallDamageFromCurrentExplosion(true);
-        player.currentExplosionImpactPos = player.getPos();
+        player.currentExplosionImpactPos = player.getEntityPos();
 
         if (player instanceof SoftLandingEntity softLandingEntity) {
             softLandingEntity.vitality$setWillSoftLand(false);
@@ -94,7 +94,7 @@ public class DoubleJumpLogic {
         Vec3d forwardMotion = new Vec3d(forwardX, upwardsMotion - motion.y, forwardZ);
         player.addVelocity(forwardMotion);
 
-        if (!world.isClient) {
+        if (!world.isClient()) {
             player.incrementStat(Stats.JUMP);
 
             if (player.isSprinting()) {

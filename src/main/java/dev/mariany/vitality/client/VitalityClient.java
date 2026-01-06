@@ -1,5 +1,8 @@
 package dev.mariany.vitality.client;
 
+import com.zigythebird.playeranim.api.PlayerAnimationFactory;
+import com.zigythebird.playeranimcore.enums.PlayState;
+import dev.mariany.vitality.client.animation.RollAnimationController;
 import dev.mariany.vitality.event.client.ClientTickHandler;
 import dev.mariany.vitality.packet.clientbound.ClientBoundPackets;
 import dev.mariany.vitality.packet.serverbound.RequestFoodHistorySync;
@@ -19,6 +22,15 @@ public class VitalityClient implements ClientModInitializer {
         ClientPlayConnectionEvents.JOIN.register(VitalityClient::onJoin);
         ClientTickHandler.register();
         VitalityTooltips.register();
+
+        PlayerAnimationFactory.ANIMATION_DATA_FACTORY.registerFactory(
+                RollAnimationController.ID,
+                1000,
+                player -> new RollAnimationController(
+                        player,
+                        (controller, state, animSetter) -> PlayState.STOP
+                )
+        );
     }
 
     private static void onJoin(ClientPlayNetworkHandler handler, PacketSender sender, MinecraftClient client) {

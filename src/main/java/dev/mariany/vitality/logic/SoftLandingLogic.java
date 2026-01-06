@@ -98,7 +98,7 @@ public class SoftLandingLogic {
     }
 
     private static boolean canTriggerSoftLand(PlayerEntity player, boolean jumping) {
-        World world = player.getWorld();
+        World world = player.getEntityWorld();
 
         if (jumping && !player.getAbilities().allowFlying) {
             for (int i = 0; i < MAX_GROUND_DISTANCE; i++) {
@@ -113,7 +113,8 @@ public class SoftLandingLogic {
     }
 
     public static Vec3d softLand(PlayerEntity player, float forward, float sideways) {
-        World world = player.getWorld();
+        World world = player.getEntityWorld();
+
         Vec3d direction;
 
         if (forward == 0 && sideways == 0) {
