@@ -25,4 +25,7 @@ public class VitalityConfigModel {
 
     @Comment("Controls whether players receive regeneration when their diet goes up to 'good'.")
     public boolean regenerationFromImprovedDiet = true;
+
+    @Comment("When disabled, no animation will be played when double jumping, soft landing, or wall clinging.")
+    public boolean playAnimation = true;
 }

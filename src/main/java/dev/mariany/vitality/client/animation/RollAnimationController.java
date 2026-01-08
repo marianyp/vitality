@@ -44,7 +44,10 @@ public class RollAnimationController extends PlayerAnimationController {
         }
 
         this.speedModifier.speed = animation.length() / (VitalityConstants.ROLL_DURATION * speedMultiplier);
-        this.triggerAnimation(animation);
+
+        if (Vitality.CONFIG.playAnimation()) {
+            this.triggerAnimation(animation);
+        }
     }
 
     private AdjustmentModifier createAdjustmentModifier() {

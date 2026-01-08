@@ -1,5 +1,6 @@
 package dev.mariany.vitality.mixin;
 
+import dev.mariany.vitality.Vitality;
 import dev.mariany.vitality.client.render.entity.state.ClingingPlayerEntityRenderState;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.entity.model.ArmPosing;
@@ -23,6 +24,10 @@ public class PlayerEntityModelMixin extends BipedEntityModel<PlayerEntityRenderS
             at = @At(value = "TAIL")
     )
     private void injectSetAngles(PlayerEntityRenderState playerEntityRenderState, CallbackInfo ci) {
+        if (!Vitality.CONFIG.playAnimation()) {
+            return;
+        }
+
         ClingingPlayerEntityRenderState clingingPlayerEntityRenderState =
                 (ClingingPlayerEntityRenderState) playerEntityRenderState;
 
